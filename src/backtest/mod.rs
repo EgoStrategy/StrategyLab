@@ -183,6 +183,9 @@ impl<'a> Backtest<'a> {
             
             // 检查第一个交易日是否直接低于止损价（止损失败）
             if data[forecast_idx + 1].open < stop_loss_price {
+                log::debug!("首日止损失败: 开盘价={:.2}, 止损价={:.2}, 实际损失={:.2}%", 
+                    data[forecast_idx + 1].open, stop_loss_price, 
+                    (data[forecast_idx + 1].open - buy_price) / buy_price * 100.0);
                 is_stop_loss_fail = true;
                 max_return = (data[forecast_idx + 1].open - buy_price) / buy_price; // 实际损失
                 exit_day = 1;
@@ -199,11 +202,28 @@ impl<'a> Backtest<'a> {
                     }
                     
                     // 检查是否触发止损
-                    let low_return = (data[i].low - buy_price) / buy_price;
-                    if low_return <= -self.target.stop_loss() {
-                        max_return = -self.target.stop_loss();
+                    // 计算低点收益率（用于日志）
+                    let _low_return = (data[i].low - buy_price) / buy_price;
+                    
+                    // 检查是否跳空低开导致止损失败
+                    if i > forecast_idx + 1 && data[i].open < stop_loss_price {
+                        // 开盘价已低于止损价，这是止损失败
+                        log::debug!("止损失败: 股票跳空低开, 开盘价={:.2}, 止损价={:.2}, 实际损失={:.2}%", 
+                            data[i].open, stop_loss_price, (data[i].open - buy_price) / buy_price * 100.0);
+                        is_stop_loss_fail = true;
+                        max_return = (data[i].open - buy_price) / buy_price; // 实际损失
                         exit_day = i - forecast_idx;
+                        break;
+                    }
+                    
+                    // 检查是否触发正常止损
+                    if data[i].low <= stop_loss_price && data[i].open >= stop_loss_price {
+                        // 当日最低价触及止损价，但开盘价高于止损价，这是正常止损
+                        log::debug!("正常止损: 触发止损价, 最低价={:.2}, 止损价={:.2}, 止损比例={:.2}%", 
+                            data[i].low, stop_loss_price, self.target.stop_loss() * 100.0);
                         is_stop_loss = true;
+                        max_return = -self.target.stop_loss(); // 按照预设止损比例计算
+                        exit_day = i - forecast_idx;
                         break;
                     }
                     
@@ -219,6 +239,28 @@ impl<'a> Backtest<'a> {
                     let last_return = (data[last_idx].close - buy_price) / buy_price;
                     max_return = last_return;
                     exit_day = self.target.in_days();
+                    
+                    // 对于一天内目标的特殊处理
+                    if self.target.in_days() == 1 {
+                        // 检查当天是否触发止损
+                        let day_idx = forecast_idx + 1;
+                        if data[day_idx].low <= stop_loss_price {
+                            // 当天触及止损价
+                            if data[day_idx].open < stop_loss_price {
+                                // 开盘就低于止损价，这是止损失败
+                                log::debug!("一天内目标止损失败: 开盘价={:.2}, 止损价={:.2}", 
+                                    data[day_idx].open, stop_loss_price);
+                                is_stop_loss_fail = true;
+                                max_return = (data[day_idx].open - buy_price) / buy_price;
+                            } else {
+                                // 开盘价高于止损价，这是正常止损
+                                log::debug!("一天内目标正常止损: 最低价={:.2}, 止损价={:.2}", 
+                                    data[day_idx].low, stop_loss_price);
+                                is_stop_loss = true;
+                                max_return = -self.target.stop_loss();
+                            }
+                        }
+                    }
                 }
             }
             
@@ -229,9 +271,11 @@ impl<'a> Backtest<'a> {
                 losing_trades += 1;
                 if is_stop_loss {
                     stop_loss_trades += 1;
+                    log::debug!("记录一次正常止损");
                 }
                 if is_stop_loss_fail {
                     stop_loss_fail_trades += 1;
+                    log::debug!("记录一次止损失败");
                 }
             }
             
@@ -259,6 +303,12 @@ impl<'a> Backtest<'a> {
         } else {
             0.0
         };
+        
+        // 添加详细的日志记录
+        log::info!("回测统计: 总交易={}, 胜率={:.2}%, 止损率={:.2}%, 止损失败率={:.2}%",
+            total_trades, win_rate * 100.0, stop_loss_rate * 100.0, stop_loss_fail_rate * 100.0);
+        log::info!("回测详情: 胜利交易={}, 止损交易={}, 止损失败交易={}",
+            winning_trades, stop_loss_trades, stop_loss_fail_trades);
         
         let avg_return = if returns.is_empty() {
             0.0

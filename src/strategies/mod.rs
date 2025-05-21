@@ -2,6 +2,7 @@ pub mod atr;
 pub mod macd;
 pub mod rsi;
 pub mod volume_decline;
+pub mod breakthrough_pullback;  // 添加新模块
 
 use rayon::prelude::*;
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
@@ -50,3 +51,6 @@ pub trait StockSelector: Sync + Send {
         candidates
     }
 }
+
+// 导出新的选股器
+pub use self::breakthrough_pullback::BreakthroughPullbackSelector;

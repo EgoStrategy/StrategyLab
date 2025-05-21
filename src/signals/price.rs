@@ -48,3 +48,39 @@ impl BuySignalGenerator for OpenPriceSignal {
         price
     }
 }
+/// 基于限价的买入信号生成器 - 适用于倒序数据
+pub struct LimitPriceSignal {
+    pub price_buffer_percent: f32,  // 买入价格缓冲比例
+}
+
+impl Default for LimitPriceSignal {
+    fn default() -> Self {
+        Self {
+            price_buffer_percent: 2.0,  // 默认买入价格为前收盘价上浮2%
+        }
+    }
+}
+
+impl BuySignalGenerator for LimitPriceSignal {
+    fn name(&self) -> String {
+        format!("限价买入(+{:.1}%)", self.price_buffer_percent)
+    }
+    
+    fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        if data.len() <= forecast_idx + 1 {
+            log::debug!("股票 {}: 计算限价买入信号失败, forecast_idx={}, len={}", 
+                symbol, forecast_idx, data.len());
+            return 0.0;
+        }
+        
+        // 使用前一日收盘价作为基准，加上缓冲比例
+        let base_price = data[forecast_idx + 1].close;
+        let limit_price = base_price * (1.0 + self.price_buffer_percent / 100.0);
+        
+        log::debug!("股票 {}: 计算限价买入信号, forecast_idx={}, base_price={:.2}, limit_price={:.2}", 
+            symbol, forecast_idx, base_price, limit_price);
+        
+        limit_price
+    }
+}

@@ -3,10 +3,12 @@ use strategy_lab::strategies::{
     StockSelector,
     atr::AtrSelector,
     volume_decline::VolumeDecliningSelector,
+    breakthrough_pullback::BreakthroughPullbackSelector,  // 导入新策略
 };
 use strategy_lab::signals::{
     BuySignalGenerator,
-    price::{ClosePriceSignal, OpenPriceSignal},
+    price::{ClosePriceSignal, OpenPriceSignal, LimitPriceSignal},
+    bottom_reverse::BottomReverseSignal,  // 导入新信号
 };
 use strategy_lab::targets::{
     Target,
@@ -81,17 +83,28 @@ fn main() -> Result<()> {
             price_period: 20,
             check_support_level: false,       // 不检查是否破位
         }),
-        // 可以添加更多选股策略
+        // 添加新的突破回踩策略
+        Box::new(BreakthroughPullbackSelector {
+            top_n: 10,
+            lookback_days: 10,
+            min_breakthrough_percent: 5.0,
+            max_pullback_percent: 5.0,
+            volume_decline_ratio: 0.7,
+        }),
     ];
     
     // 创建买入信号生成器
     let signals: Vec<Box<dyn BuySignalGenerator>> = vec![
         Box::new(ClosePriceSignal),
         Box::new(OpenPriceSignal),
+        Box::new(LimitPriceSignal::default()),
+        // 添加新的地包天买入信号
+        Box::new(BottomReverseSignal::default()),
     ];
     
     // 创建目标
     let targets: Vec<Box<dyn Target>> = vec![
+        Box::new(ReturnTarget { target_return: 0.02, stop_loss: 0.01, in_days: 1 }),
         Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.01, in_days: 3 }),
         Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.01, in_days: 5 })
     ];
@@ -139,6 +152,8 @@ fn run_detailed_backtest(
     let mut total_trades = 0;
     let mut winning_trades = 0;
     let mut losing_trades = 0;
+    let mut stop_loss_trades = 0;       // 添加止损交易计数
+    let mut stop_loss_fail_trades = 0;  // 添加止损失败交易计数
     let mut total_return = 0.0;
     let mut max_return: f32 = -1.0;
     let mut max_loss: f32 = 0.0;
@@ -152,10 +167,16 @@ fn run_detailed_backtest(
         total_trades += result.total_trades;
         winning_trades += result.winning_trades;
         losing_trades += result.losing_trades;
+        stop_loss_trades += result.stop_loss_trades;         // 累加止损交易数
+        stop_loss_fail_trades += result.stop_loss_fail_trades; // 累加止损失败交易数
         total_return += result.avg_return * result.total_trades as f32;
         max_return = max_return.max(result.max_return);
         max_loss = max_loss.min(result.max_loss);
         total_hold_days += result.avg_hold_days * result.total_trades as f32;
+        
+        // 记录止损和止损失败情况
+        log::info!("回测日期 {}: 止损率={:.2}%, 止损失败率={:.2}%", 
+            forecast_idx, result.stop_loss_rate * 100.0, result.stop_loss_fail_rate * 100.0);
     }
     
     // 计算平均值
@@ -177,15 +198,28 @@ fn run_detailed_backtest(
         0.0
     };
     
+    // 计算止损率和止损失败率
+    let stop_loss_rate = if total_trades > 0 {
+        stop_loss_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    let stop_loss_fail_rate = if total_trades > 0 {
+        stop_loss_fail_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
     BacktestResult {
         total_trades,
         winning_trades,
         losing_trades,
-        stop_loss_trades: 0,
-        stop_loss_fail_trades: 0,  // 添加止损失败交易数
+        stop_loss_trades,
+        stop_loss_fail_trades,
         win_rate,
-        stop_loss_rate: 0.0,
-        stop_loss_fail_rate: 0.0,  // 添加止损失败率
+        stop_loss_rate,
+        stop_loss_fail_rate,
         avg_return,
         max_return,
         max_loss,

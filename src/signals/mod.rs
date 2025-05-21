@@ -1,5 +1,6 @@
 pub mod price;
 pub mod volume;
+pub mod bottom_reverse;  // 添加新模块
 
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
 
@@ -31,3 +32,6 @@ pub trait BuySignalGenerator: Sync + Send {
         signals
     }
 }
+
+// 导出新的信号生成器
+pub use self::bottom_reverse::BottomReverseSignal;

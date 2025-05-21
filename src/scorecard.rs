@@ -113,5 +113,19 @@ impl Scorecard {
         println!("选股策略: {}", self.selectors[best_selector].name());
         println!("买入信号: {}", self.signals[best_signal].name());
         println!("成功率: {:.2}%", best_score * 100.0);
+        
+        // 运行详细回测以获取止损率和止损失败率
+        let result = self.engine.run_detailed_test(
+            &*self.selectors[best_selector],
+            &*self.signals[best_signal],
+            &*self.targets[best_target],
+            1 // 使用最近的一天
+        );
+        
+        println!("止损率: {:.2}%", result.stop_loss_rate * 100.0);
+        println!("止损失败率: {:.2}%", result.stop_loss_fail_rate * 100.0);
+        println!("止损交易数: {}", result.stop_loss_trades);
+        println!("止损失败交易数: {}", result.stop_loss_fail_trades);
+        println!("总交易数: {}", result.total_trades);
     }
 }
