@@ -83,10 +83,41 @@ body {
     margin-top: 3rem;
 }
 
+/* 图表容器样式 */
 .chart-container {
-    height: 600px;
-    margin-bottom: 1.5rem;
     position: relative;
+    margin-bottom: 40px; /* 图表容器与表格之间的间距 */
+}
+
+/* 为每个图表创建单独的容器 */
+.chart-item {
+    height: 350px; /* 每个图表的固定高度 */
+    margin-bottom: 30px; /* 图表之间的间距 */
+    position: relative;
+}
+
+/* 表格样式 */
+.table-responsive {
+    margin-top: 20px; /* 表格顶部边距 */
+}
+
+/* DataTables 自定义样式 */
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 15px;
+}
+
+.dataTables_wrapper .table thead th {
+    position: relative;
+    background-color: #f8f9fa;
+}
+
+.dataTables_wrapper .table thead th.sorting:after,
+.dataTables_wrapper .table thead th.sorting_asc:after,
+.dataTables_wrapper .table thead th.sorting_desc:after {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .progress {
@@ -179,4 +210,25 @@ h5, h6 {
 .table-responsive {
     border-radius: 5px;
     overflow: hidden;
+}
+/* 表格展开行样式 */
+td.dt-control {
+    text-align: center;
+    cursor: pointer;
+}
+
+td.dt-control:before {
+    content: '▶';
+    color: #007bff;
+}
+
+tr.shown td.dt-control:before {
+    content: '▼';
+    color: #dc3545;
+}
+
+.strategy-details {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 3px solid #007bff;
 }

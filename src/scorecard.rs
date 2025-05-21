@@ -7,8 +7,8 @@ use rayon::prelude::*;
 
 /// 策略评分卡
 pub struct Scorecard {
-    back_days: usize,
-    engine: BacktestEngine,
+    pub back_days: usize,
+    pub engine: BacktestEngine,
     pub selectors: Vec<Box<dyn StockSelector>>,
     pub signals: Vec<Box<dyn BuySignalGenerator>>,
     pub targets: Vec<Box<dyn Target>>,

@@ -12,7 +12,11 @@ pub struct BacktestResult {
     pub total_trades: usize,
     pub winning_trades: usize,
     pub losing_trades: usize,
+    pub stop_loss_trades: usize,      // 触发止损的交易数
+    pub stop_loss_fail_trades: usize, // 止损失败的交易数
     pub win_rate: f32,
+    pub stop_loss_rate: f32,          // 止损率
+    pub stop_loss_fail_rate: f32,     // 止损失败率
     pub avg_return: f32,
     pub max_return: f32,
     pub max_loss: f32,
@@ -104,16 +108,43 @@ impl BacktestEngine {
             
         total_score / back_days as f32
     }
+    
+    /// 运行单次回测并返回详细结果
+    pub fn run_detailed_test(
+        &self,
+        selector: &dyn StockSelector,
+        signal_generator: &dyn BuySignalGenerator,
+        target: &dyn Target,
+        forecast_idx: usize,
+    ) -> BacktestResult {
+        let stock_data: Vec<(String, Vec<DailyBar>)> = self.stock_data
+            .iter()
+            .map(|(symbol, data)| (symbol.clone(), data.clone()))
+            .collect();
+            
+        info!("运行详细回测: 策略={}, 信号={}, 目标={}, 预测天数={}",
+            selector.name(), signal_generator.name(), target.name(), forecast_idx);
+            
+        // 1. 选股
+        let candidates = selector.run(&stock_data, forecast_idx);
+        
+        // 2. 生成买入信号
+        let signals = signal_generator.generate_signals(candidates, forecast_idx);
+        
+        // 3. 创建回测对象并运行
+        let backtest = Backtest::new_with_target(target);
+        backtest.run(signals, forecast_idx)
+    }
 }
 
 /// 简化的回测类，用于单次回测
-pub struct Backtest<T: Target> {
-    target: T,
+pub struct Backtest<'a> {
+    target: &'a dyn Target,
 }
 
-impl<T: Target> Backtest<T> {
+impl<'a> Backtest<'a> {
     /// 创建新的回测
-    pub fn new(target: T) -> Self {
+    pub fn new_with_target(target: &'a dyn Target) -> Self {
         Self { target }
     }
     
@@ -122,6 +153,8 @@ impl<T: Target> Backtest<T> {
         let mut total_trades = signals.len();
         let mut winning_trades = 0;
         let mut losing_trades = 0;
+        let mut stop_loss_trades = 0;       // 触发止损的交易数
+        let mut stop_loss_fail_trades = 0;  // 止损失败的交易数
         let mut returns = Vec::new();
         let mut hold_days = Vec::new();
         
@@ -142,36 +175,51 @@ impl<T: Target> Backtest<T> {
             let mut max_return = -1.0;
             let mut exit_day = 0;
             let mut is_win = false;
+            let mut is_stop_loss = false;      // 是否触发止损
+            let mut is_stop_loss_fail = false; // 是否止损失败
             
-            for i in (forecast_idx + 1)..=(forecast_idx + self.target.in_days()) {
-                let current_return = (data[i].high - buy_price) / buy_price;
-                if current_return >= self.target.target_return() {
-                    max_return = current_return;
-                    exit_day = i - forecast_idx;
-                    is_win = true;
-                    break;
+            // 计算止损价
+            let stop_loss_price = buy_price * (1.0 - self.target.stop_loss());
+            
+            // 检查第一个交易日是否直接低于止损价（止损失败）
+            if data[forecast_idx + 1].open < stop_loss_price {
+                is_stop_loss_fail = true;
+                max_return = (data[forecast_idx + 1].open - buy_price) / buy_price; // 实际损失
+                exit_day = 1;
+            } else {
+                // 正常交易流程
+                for i in (forecast_idx + 1)..=(forecast_idx + self.target.in_days()) {
+                    // 检查是否达到目标收益
+                    let current_return = (data[i].close - buy_price) / buy_price;
+                    if current_return >= self.target.target_return() {
+                        max_return = current_return;
+                        exit_day = i - forecast_idx;
+                        is_win = true;
+                        break;
+                    }
+                    
+                    // 检查是否触发止损
+                    let low_return = (data[i].low - buy_price) / buy_price;
+                    if low_return <= -self.target.stop_loss() {
+                        max_return = -self.target.stop_loss();
+                        exit_day = i - forecast_idx;
+                        is_stop_loss = true;
+                        break;
+                    }
+                    
+                    // 更新最大收益
+                    if current_return > max_return {
+                        max_return = current_return;
+                    }
                 }
                 
-                // 检查是否触发止损
-                let low_return = (data[i].low - buy_price) / buy_price;
-                if low_return <= -self.target.stop_loss() {
-                    max_return = -self.target.stop_loss();
-                    exit_day = i - forecast_idx;
-                    break;
+                // 如果没有提前退出，使用最后一天的收盘价计算收益
+                if exit_day == 0 {
+                    let last_idx = forecast_idx + self.target.in_days();
+                    let last_return = (data[last_idx].close - buy_price) / buy_price;
+                    max_return = last_return;
+                    exit_day = self.target.in_days();
                 }
-                
-                // 更新最大收益
-                if current_return > max_return {
-                    max_return = current_return;
-                }
-            }
-            
-            // 如果没有提前退出，使用最后一天的收盘价计算收益
-            if exit_day == 0 {
-                let last_idx = forecast_idx + self.target.in_days();
-                let last_return = (data[last_idx].close - buy_price) / buy_price;
-                max_return = last_return;
-                exit_day = self.target.in_days();
             }
             
             // 统计结果
@@ -179,6 +227,12 @@ impl<T: Target> Backtest<T> {
                 winning_trades += 1;
             } else {
                 losing_trades += 1;
+                if is_stop_loss {
+                    stop_loss_trades += 1;
+                }
+                if is_stop_loss_fail {
+                    stop_loss_fail_trades += 1;
+                }
             }
             
             returns.push(max_return);
@@ -188,6 +242,20 @@ impl<T: Target> Backtest<T> {
         // 计算统计指标
         let win_rate = if total_trades > 0 {
             winning_trades as f32 / total_trades as f32
+        } else {
+            0.0
+        };
+        
+        // 计算止损率
+        let stop_loss_rate = if total_trades > 0 {
+            stop_loss_trades as f32 / total_trades as f32
+        } else {
+            0.0
+        };
+        
+        // 计算止损失败率
+        let stop_loss_fail_rate = if total_trades > 0 {
+            stop_loss_fail_trades as f32 / total_trades as f32
         } else {
             0.0
         };
@@ -211,7 +279,11 @@ impl<T: Target> Backtest<T> {
             total_trades,
             winning_trades,
             losing_trades,
+            stop_loss_trades,
+            stop_loss_fail_trades,
             win_rate,
+            stop_loss_rate,
+            stop_loss_fail_rate,
             avg_return,
             max_return,
             max_loss,

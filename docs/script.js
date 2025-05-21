@@ -141,6 +141,33 @@ function createStrategyCard(strategy, rank) {
                     </div>
                     <div class="col-6">
                         <div class="d-flex justify-content-between">
+                            <span>止损率:</span>
+                            <span class="fw-bold">${(performance.stop_loss_rate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                style="width: ${performance.stop_loss_rate * 100}%" 
+                                aria-valuenow="${performance.stop_loss_rate * 100}" 
+                                aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
+                            <span>止损失败率:</span>
+                            <span class="fw-bold">${(performance.stop_loss_fail_rate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                style="width: ${performance.stop_loss_fail_rate * 100}%" 
+                                aria-valuenow="${performance.stop_loss_fail_rate * 100}" 
+                                aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
                             <span>平均收益:</span>
                             <span class="fw-bold">${(performance.avg_return * 100).toFixed(1)}%</span>
                         </div>
@@ -188,28 +215,114 @@ function getTargetDescription(targetName) {
 
 // 更新性能表格
 function updatePerformanceTable() {
-    const tableBody = document.querySelector('#performance-table tbody');
-    tableBody.innerHTML = '';
+    // 准备表格数据
+    const tableData = [];
     
-    strategyData.strategies.forEach(strategy => {
+    strategyData.strategies.forEach((strategy, index) => {
         const perf = strategy.performance;
-        const row = document.createElement('tr');
+        const isBest = strategyData.best_combinations.includes(index);
         
-        // 高亮最佳策略
-        if (strategyData.best_combinations.includes(strategyData.strategies.indexOf(strategy))) {
-            row.classList.add('table-primary');
+        // 存储策略索引，用于获取详细信息
+        tableData.push({
+            strategyIndex: index,
+            name: `${strategy.strategy_name} + ${strategy.signal_name} (${getShortTargetName(strategy.target_name)})`,
+            successRate: (perf.success_rate * 100).toFixed(1) + '%',
+            stopLossRate: (perf.stop_loss_rate * 100).toFixed(1) + '%',
+            stopLossFailRate: (perf.stop_loss_fail_rate * 100).toFixed(1) + '%',  // 新增：止损失败率
+            avgReturn: (perf.avg_return * 100).toFixed(1) + '%',
+            maxReturn: (perf.max_return * 100).toFixed(1) + '%',
+            maxLoss: (perf.max_loss * 100).toFixed(1) + '%',
+            avgHoldDays: perf.avg_hold_days.toFixed(1),
+            isBest: isBest
+        });
+    });
+    
+    // 销毁现有表格实例（如果存在）
+    if ($.fn.DataTable.isDataTable('#performance-table')) {
+        $('#performance-table').DataTable().destroy();
+    }
+    
+    // 初始化表格
+    const table = $('#performance-table').DataTable({
+        data: tableData,
+        columns: [
+            {
+                className: 'dt-control',
+                orderable: false,
+                data: null,
+                defaultContent: '',
+                width: '30px'
+            },
+            { 
+                title: '策略组合', 
+                data: 'name',
+                render: function(data, type, row) {
+                    if (row.isBest) {
+                        return `<span class="badge bg-primary me-2">推荐</span>${data}`;
+                    }
+                    return data;
+                }
+            },
+            { title: '成功率', data: 'successRate' },
+            { title: '止损率', data: 'stopLossRate' },
+            { title: '止损失败率', data: 'stopLossFailRate' },  // 新增：止损失败率列
+            { title: '平均收益', data: 'avgReturn' },
+            { title: '最大收益', data: 'maxReturn' },
+            { title: '最大亏损', data: 'maxLoss' },
+            { title: '平均持仓天数', data: 'avgHoldDays' }
+        ],
+        order: [[2, 'desc']], // 默认按成功率降序排列
+        language: {
+            "sProcessing": "处理中...",
+            "sLengthMenu": "显示 _MENU_ 项结果",
+            "sZeroRecords": "没有匹配结果",
+            "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+            "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+            "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+            "sInfoPostFix": "",
+            "sSearch": "搜索:",
+            "sUrl": "",
+            "sEmptyTable": "表中数据为空",
+            "sLoadingRecords": "载入中...",
+            "sInfoThousands": ",",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上页",
+                "sNext": "下页",
+                "sLast": "末页"
+            },
+            "oAria": {
+                "sSortAscending": ": 以升序排列此列",
+                "sSortDescending": ": 以降序排列此列"
+            }
+        },
+        createdRow: function(row, data) {
+            // 为最佳策略添加高亮样式
+            if (data.isBest) {
+                $(row).addClass('table-primary');
+            }
+        },
+        responsive: true,
+        paging: false,
+        info: false
+    });
+    
+    // 添加行点击事件，展开/折叠详情
+    $('#performance-table tbody').on('click', 'td.dt-control', function() {
+        const tr = $(this).closest('tr');
+        const row = table.row(tr);
+        
+        if (row.child.isShown()) {
+            // 已经展开，需要折叠
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // 需要展开
+            const rowData = row.data();
+            const strategy = strategyData.strategies[rowData.strategyIndex];
+            row.child(formatStrategyDetails(strategy)).show();
+            tr.addClass('shown');
         }
-        
-        row.innerHTML = `
-            <td>${strategy.strategy_name} + ${strategy.signal_name} (${getShortTargetName(strategy.target_name)})</td>
-            <td>${(perf.success_rate * 100).toFixed(1)}%</td>
-            <td>${(perf.avg_return * 100).toFixed(1)}%</td>
-            <td>${(perf.max_return * 100).toFixed(1)}%</td>
-            <td>${(perf.max_loss * 100).toFixed(1)}%</td>
-            <td>${perf.avg_hold_days.toFixed(1)}</td>
-        `;
-        
-        tableBody.appendChild(row);
     });
 }
 
@@ -234,10 +347,15 @@ function initPerformanceChart() {
     const chartContainer = document.getElementById('performance-chart');
     chartContainer.innerHTML = ''; // 清空容器
     
-    // 创建第一个图表 - 成功率和收益率对比
+    // 创建第一个图表的容器
+    const chartItem1 = document.createElement('div');
+    chartItem1.className = 'chart-item';
+    chartContainer.appendChild(chartItem1);
+    
+    // 创建第一个图表的画布
     const canvas1 = document.createElement('canvas');
     canvas1.id = 'success-return-chart';
-    chartContainer.appendChild(canvas1);
+    chartItem1.appendChild(canvas1);
     
     // 准备图表数据
     const labels = strategyData.strategies.map(s => {
@@ -289,6 +407,7 @@ function initPerformanceChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            aspectRatio: 2, // 设置宽高比
             scales: {
                 y: {
                     beginAtZero: true,
@@ -322,11 +441,15 @@ function initPerformanceChart() {
         }
     });
     
+    // 创建第二个图表的容器
+    const chartItem2 = document.createElement('div');
+    chartItem2.className = 'chart-item';
+    chartContainer.appendChild(chartItem2);
+    
     // 创建第二个图表 - 收益率与持仓天数散点图
     const canvas2 = document.createElement('canvas');
     canvas2.id = 'holding-return-chart';
-    canvas2.style.marginTop = '30px';
-    chartContainer.appendChild(canvas2);
+    chartItem2.appendChild(canvas2);
     
     // 准备散点图数据
     const scatterData = strategyData.strategies.map((s, i) => {
@@ -363,6 +486,7 @@ function initPerformanceChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            aspectRatio: 2, // 设置宽高比
             scales: {
                 x: {
                     title: {
@@ -401,4 +525,80 @@ function initPerformanceChart() {
             }
         }
     });
+}
+// 格式化策略详情
+function formatStrategyDetails(strategy) {
+    const isLimitPrice = strategy.signal_name.includes('限价');
+    
+    // 创建详情容器
+    let detailsHtml = `
+        <div class="strategy-details p-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="mb-3">策略详情</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>选股策略:</strong> ${strategy.strategy_name}</li>
+                        <li><strong>买入信号:</strong> ${strategy.signal_name}</li>
+                        <li><strong>目标设置:</strong> ${strategy.target_name}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="mb-3">性能指标</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>成功率:</strong> ${(strategy.performance.success_rate * 100).toFixed(1)}%</li>
+                        <li><strong>止损率:</strong> ${(strategy.performance.stop_loss_rate * 100).toFixed(1)}%</li>
+                        <li><strong>止损失败率:</strong> ${(strategy.performance.stop_loss_fail_rate * 100).toFixed(1)}%</li>
+                        <li><strong>平均收益:</strong> ${(strategy.performance.avg_return * 100).toFixed(1)}%</li>
+                        <li><strong>平均持仓:</strong> ${strategy.performance.avg_hold_days.toFixed(1)}天</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h6 class="mt-3 mb-2">推荐股票</h6>
+    `;
+    
+    // 添加股票表格
+    if (strategy.recommendations && strategy.recommendations.length > 0) {
+        detailsHtml += `
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>代码</th>
+                            <th>名称</th>
+                            ${isLimitPrice ? '<th>前收盘</th>' : ''}
+                            <th>买入价</th>
+                            <th>目标价</th>
+                            <th>止损价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // 添加股票数据
+        strategy.recommendations.forEach(stock => {
+            detailsHtml += `
+                <tr>
+                    <td>${stock.symbol}</td>
+                    <td>${stock.name}</td>
+                    ${isLimitPrice ? `<td>${stock.prev_close?.toFixed(2) || '-'}</td>` : ''}
+                    <td>${stock.buy_price.toFixed(2)}</td>
+                    <td>${stock.target_price.toFixed(2)}</td>
+                    <td>${stock.stop_loss_price.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        
+        detailsHtml += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        detailsHtml += `<p class="text-muted">暂无推荐股票</p>`;
+    }
+    
+    detailsHtml += `</div>`;
+    
+    return detailsHtml;
 }

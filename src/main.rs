@@ -1,3 +1,4 @@
+use strategy_lab::backtest::{BacktestEngine, BacktestResult};
 use strategy_lab::strategies::{
     StockSelector,
     atr::AtrSelector,
@@ -5,12 +6,11 @@ use strategy_lab::strategies::{
 };
 use strategy_lab::signals::{
     BuySignalGenerator,
-    price::{ClosePriceSignal, OpenPriceSignal, LimitPriceSignal},
+    price::{ClosePriceSignal, OpenPriceSignal},
 };
 use strategy_lab::targets::{
     Target,
     return_target::ReturnTarget,
-    guard_target::GuardTarget,
 };
 use strategy_lab::scorecard::Scorecard;
 use strategy_lab::stock::data_provider::StockDataProvider;
@@ -35,6 +35,8 @@ struct StockRecommendation {
 #[derive(Serialize, Deserialize)]
 struct StrategyPerformance {
     success_rate: f32,
+    stop_loss_rate: f32,       // 止损率
+    stop_loss_fail_rate: f32,  // 止损失败率
     avg_return: f32,
     max_return: f32,
     max_loss: f32,
@@ -86,13 +88,12 @@ fn main() -> Result<()> {
     let signals: Vec<Box<dyn BuySignalGenerator>> = vec![
         Box::new(ClosePriceSignal),
         Box::new(OpenPriceSignal),
-        Box::new(LimitPriceSignal::default()),
     ];
     
     // 创建目标
     let targets: Vec<Box<dyn Target>> = vec![
-        Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.02, in_days: 3 }),
-        Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.02, in_days: 5 })
+        Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.01, in_days: 3 }),
+        Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.01, in_days: 5 })
     ];
     
     log::info!("创建评分卡...");
@@ -123,6 +124,73 @@ fn main() -> Result<()> {
     log::info!("评分卡运行完成");
     
     Ok(())
+}
+
+/// 运行详细回测以获取性能指标
+fn run_detailed_backtest(
+    engine: &BacktestEngine,
+    selector: &dyn StockSelector,
+    signal: &dyn BuySignalGenerator,
+    target: &dyn Target,
+    back_days: usize
+) -> BacktestResult {
+    log::info!("运行详细回测以获取性能指标...");
+    
+    let mut total_trades = 0;
+    let mut winning_trades = 0;
+    let mut losing_trades = 0;
+    let mut total_return = 0.0;
+    let mut max_return: f32 = -1.0;
+    let mut max_loss: f32 = 0.0;
+    let mut total_hold_days = 0.0;
+    
+    // 对每个回测日期运行回测
+    for forecast_idx in 1..=back_days {
+        let result = engine.run_detailed_test(selector, signal, target, forecast_idx);
+        
+        // 累加结果
+        total_trades += result.total_trades;
+        winning_trades += result.winning_trades;
+        losing_trades += result.losing_trades;
+        total_return += result.avg_return * result.total_trades as f32;
+        max_return = max_return.max(result.max_return);
+        max_loss = max_loss.min(result.max_loss);
+        total_hold_days += result.avg_hold_days * result.total_trades as f32;
+    }
+    
+    // 计算平均值
+    let avg_return = if total_trades > 0 {
+        total_return / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    let avg_hold_days = if total_trades > 0 {
+        total_hold_days / total_trades as f32
+    } else {
+        target.in_days() as f32 / 2.0 // 默认值
+    };
+    
+    let win_rate = if total_trades > 0 {
+        winning_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    BacktestResult {
+        total_trades,
+        winning_trades,
+        losing_trades,
+        stop_loss_trades: 0,
+        stop_loss_fail_trades: 0,  // 添加止损失败交易数
+        win_rate,
+        stop_loss_rate: 0.0,
+        stop_loss_fail_rate: 0.0,  // 添加止损失败率
+        avg_return,
+        max_return,
+        max_loss,
+        avg_hold_days,
+    }
 }
 
 fn export_results_to_json(
@@ -165,6 +233,15 @@ fn export_results_to_json(
                         target.as_ref()
                     )?;
                     
+                    // 运行详细回测以获取性能指标
+                    let backtest_result = run_detailed_backtest(
+                        &scorecard.engine,
+                        selector.as_ref(),
+                        signal.as_ref(),
+                        target.as_ref(),
+                        scorecard.back_days
+                    );
+                    
                     // 创建策略结果
                     let strategy_result = StrategyResult {
                         strategy_name: selector.name(),
@@ -172,10 +249,12 @@ fn export_results_to_json(
                         target_name: target.name(),
                         performance: StrategyPerformance {
                             success_rate: score,
-                            avg_return: 0.03,  // 这些值应该从实际回测中获取
-                            max_return: 0.08,
-                            max_loss: -0.02,
-                            avg_hold_days: target.in_days() as f32 / 2.0,
+                            stop_loss_rate: backtest_result.stop_loss_rate,
+                            stop_loss_fail_rate: backtest_result.stop_loss_fail_rate,  // 添加止损失败率
+                            avg_return: backtest_result.avg_return,
+                            max_return: backtest_result.max_return,
+                            max_loss: backtest_result.max_loss,
+                            avg_hold_days: backtest_result.avg_hold_days,
                         },
                         recommendations,
                     };

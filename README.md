@@ -49,7 +49,6 @@ StrategyLab/
 - **价格信号 (price.rs)**:
   - `ClosePriceSignal`: 基于收盘价的买入信号
   - `OpenPriceSignal`: 基于开盘价的买入信号
-  - `LimitPriceSignal`: 基于限价的买入信号
 - **成交量信号 (volume.rs)**:
   - `VolumeSurgeSignal`: 基于成交量突破的买入信号
 
