@@ -54,19 +54,47 @@ impl StockDataProvider {
         result
     }
     
-    /// 过滤股票列表，排除科创板、创业板等
-    pub fn filter_stocks(&self, symbols: Vec<String>) -> Vec<String> {
-        let filtered = symbols.into_iter()
-            .filter(|symbol| {
-                // 排除科创板(688)、创业板(300/301/302)等
-                !symbol.starts_with("688") && 
-                !symbol.starts_with("300") && 
-                !symbol.starts_with("301") && 
-                !symbol.starts_with("302")
-            })
-            .collect::<Vec<_>>();
+    /// 获取指定股票的名称
+    pub fn get_stock_name(&mut self, symbol: &str) -> Option<String> {
+        self.get_stock(symbol).map(|stock| stock.name.clone())
+    }
+    
+    /// 过滤股票列表，排除科创板、创业板等以及股价过高的股票
+    pub fn filter_stocks(&mut self, symbols: Vec<String>) -> Vec<String> {
+        log::info!("开始过滤股票，原始数量: {}", symbols.len());
+        
+        let mut filtered = Vec::new();
+        let mut excluded_by_code = 0;
+        let mut excluded_by_price = 0;
+        
+        for symbol in symbols {
+            // 排除科创板(688/689)、创业板(300/301/302)等
+            if symbol.starts_with("688") || 
+               symbol.starts_with("689") || 
+               symbol.starts_with("300") || 
+               symbol.starts_with("301") || 
+               symbol.starts_with("302") {
+                excluded_by_code += 1;
+                continue;
+            }
             
-        log::info!("过滤后剩余 {} 只股票", filtered.len());
+            // 排除股价大于100元的股票
+            if let Some(bars) = self.get_daily_bars(&symbol) {
+                if let Some(last_bar) = bars.last() {
+                    if last_bar.close > 100.0 {
+                        excluded_by_price += 1;
+                        log::debug!("过滤掉股价过高的股票: {}, 价格: {:.2}", symbol, last_bar.close);
+                        continue;
+                    }
+                }
+            }
+            
+            filtered.push(symbol);
+        }
+        
+        log::info!("过滤结果: 保留 {} 只股票, 排除 {} 只科创板/创业板股票, {} 只高价股", 
+            filtered.len(), excluded_by_code, excluded_by_price);
+        
         filtered
     }
 }

@@ -238,6 +238,8 @@ fn generate_recommendations(
     
     // 获取所有股票
     let all_stocks = provider.get_all_stocks();
+    
+    // 过滤股票 - 排除科创板、创业板和高价股
     let filtered_stocks = provider.filter_stocks(all_stocks);
     
     // 加载股票数据
@@ -249,6 +251,8 @@ fn generate_recommendations(
             }
         }
     }
+    
+    log::info!("加载了 {} 只股票的数据用于生成推荐", stock_data.len());
     
     // 运行选股策略
     let forecast_idx = 0; // 使用最新数据
@@ -265,7 +269,7 @@ fn generate_recommendations(
         }
         
         // 获取股票名称
-        let name = provider.get_stock(&symbol).unwrap().name.clone();
+        let name = provider.get_stock_name(&symbol).unwrap_or_else(|| symbol.clone());
         
         // 计算目标价和止损价
         let target_price = buy_price * (1.0 + target.target_return());
@@ -295,6 +299,8 @@ fn generate_recommendations(
     if recommendations.len() > 5 {
         recommendations.truncate(5);
     }
+    
+    log::info!("生成了 {} 只推荐股票", recommendations.len());
     
     Ok(recommendations)
 }
