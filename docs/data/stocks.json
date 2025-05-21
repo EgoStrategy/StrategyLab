@@ -1,0 +1,495 @@
+{
+  "update_date": "2025-05-21",
+  "best_combinations": [
+    5,
+    4
+  ],
+  "strategies": [
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日收盘价买入",
+      "target_name": "3天内收益率达到6%",
+      "performance": {
+        "success_rate": 0.1,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 1.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 62.15,
+          "target_price": 65.879,
+          "stop_loss_price": 60.907,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.77,
+          "target_price": 22.0162,
+          "stop_loss_price": 20.3546,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 28.07,
+          "target_price": 29.754198,
+          "stop_loss_price": 27.5086,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.44,
+          "target_price": 3.6464,
+          "stop_loss_price": 3.3712,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.57,
+          "target_price": 43.004196,
+          "stop_loss_price": 39.758602,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日开盘价买入",
+      "target_name": "3天内收益率达到6%",
+      "performance": {
+        "success_rate": 0.21666668,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 1.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 61.7,
+          "target_price": 65.402,
+          "stop_loss_price": 60.466003,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.39,
+          "target_price": 21.613398,
+          "stop_loss_price": 19.9822,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.59,
+          "target_price": 29.2454,
+          "stop_loss_price": 27.0382,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.36,
+          "target_price": 3.5615997,
+          "stop_loss_price": 3.2928,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.36,
+          "target_price": 42.781597,
+          "stop_loss_price": 39.552803,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日限价买入(98%)",
+      "target_name": "3天内收益率达到6%",
+      "performance": {
+        "success_rate": 0.38333336,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 1.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 60.0152,
+          "target_price": 63.61611,
+          "stop_loss_price": 58.8149,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.4918,
+          "target_price": 21.721308,
+          "stop_loss_price": 20.081964,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.9986,
+          "target_price": 29.678514,
+          "stop_loss_price": 27.43863,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.3320003,
+          "target_price": 3.5319202,
+          "stop_loss_price": 3.2653604,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 39.748802,
+          "target_price": 42.133728,
+          "stop_loss_price": 38.953827,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日收盘价买入",
+      "target_name": "5天内收益率达到1%",
+      "performance": {
+        "success_rate": 0.6083334,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 2.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 62.15,
+          "target_price": 62.7715,
+          "stop_loss_price": 60.907,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.77,
+          "target_price": 20.977701,
+          "stop_loss_price": 20.3546,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 28.07,
+          "target_price": 28.350698,
+          "stop_loss_price": 27.5086,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.44,
+          "target_price": 3.4744,
+          "stop_loss_price": 3.3712,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.57,
+          "target_price": 40.9757,
+          "stop_loss_price": 39.758602,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日开盘价买入",
+      "target_name": "5天内收益率达到1%",
+      "performance": {
+        "success_rate": 0.625,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 2.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 61.7,
+          "target_price": 62.317,
+          "stop_loss_price": 60.466003,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.39,
+          "target_price": 20.593899,
+          "stop_loss_price": 19.9822,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.59,
+          "target_price": 27.8659,
+          "stop_loss_price": 27.0382,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.36,
+          "target_price": 3.3935997,
+          "stop_loss_price": 3.2928,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.36,
+          "target_price": 40.7636,
+          "stop_loss_price": 39.552803,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日限价买入(98%)",
+      "target_name": "5天内收益率达到1%",
+      "performance": {
+        "success_rate": 0.8166666,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 2.5
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 60.0152,
+          "target_price": 60.615353,
+          "stop_loss_price": 58.8149,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.4918,
+          "target_price": 20.696718,
+          "stop_loss_price": 20.081964,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.9986,
+          "target_price": 28.278585,
+          "stop_loss_price": 27.43863,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.3320003,
+          "target_price": 3.3653202,
+          "stop_loss_price": 3.2653604,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 39.748802,
+          "target_price": 40.14629,
+          "stop_loss_price": 38.953827,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日收盘价买入",
+      "target_name": "10天内不触发2%止损",
+      "performance": {
+        "success_rate": 0.116666675,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 5.0
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 62.15,
+          "target_price": 62.15,
+          "stop_loss_price": 60.907,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.77,
+          "target_price": 20.77,
+          "stop_loss_price": 20.3546,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 28.07,
+          "target_price": 28.07,
+          "stop_loss_price": 27.5086,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.44,
+          "target_price": 3.44,
+          "stop_loss_price": 3.3712,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.57,
+          "target_price": 40.57,
+          "stop_loss_price": 39.758602,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日开盘价买入",
+      "target_name": "10天内不触发2%止损",
+      "performance": {
+        "success_rate": 0.21666668,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 5.0
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 61.7,
+          "target_price": 61.7,
+          "stop_loss_price": 60.466003,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.39,
+          "target_price": 20.39,
+          "stop_loss_price": 19.9822,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.59,
+          "target_price": 27.59,
+          "stop_loss_price": 27.0382,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.36,
+          "target_price": 3.36,
+          "stop_loss_price": 3.2928,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 40.36,
+          "target_price": 40.36,
+          "stop_loss_price": 39.552803,
+          "prev_close": 40.56
+        }
+      ]
+    },
+    {
+      "strategy_name": "ATR波动选股策略",
+      "signal_name": "次日限价买入(98%)",
+      "target_name": "10天内不触发2%止损",
+      "performance": {
+        "success_rate": 0.4,
+        "avg_return": 0.03,
+        "max_return": 0.08,
+        "max_loss": -0.02,
+        "avg_hold_days": 5.0
+      },
+      "recommendations": [
+        {
+          "symbol": "600132",
+          "name": "重庆啤酒",
+          "buy_price": 60.0152,
+          "target_price": 60.0152,
+          "stop_loss_price": 58.8149,
+          "prev_close": 61.24
+        },
+        {
+          "symbol": "600118",
+          "name": "中国卫星",
+          "buy_price": 20.4918,
+          "target_price": 20.4918,
+          "stop_loss_price": 20.081964,
+          "prev_close": 20.91
+        },
+        {
+          "symbol": "600129",
+          "name": "太极集团",
+          "buy_price": 27.9986,
+          "target_price": 27.9986,
+          "stop_loss_price": 27.43863,
+          "prev_close": 28.57
+        },
+        {
+          "symbol": "600120",
+          "name": "浙江东方",
+          "buy_price": 3.3320003,
+          "target_price": 3.3320003,
+          "stop_loss_price": 3.2653604,
+          "prev_close": 3.4
+        },
+        {
+          "symbol": "600038",
+          "name": "中直股份",
+          "buy_price": 39.748802,
+          "target_price": 39.748802,
+          "stop_loss_price": 38.953827,
+          "prev_close": 40.56
+        }
+      ]
+    }
+  ]
+}

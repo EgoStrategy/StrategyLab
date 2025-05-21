@@ -1,0 +1,182 @@
+/* StrategyLab 股票荐股工具样式 */
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.header {
+    background-color: #343a40;
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.strategy-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.strategy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+    padding: 1rem;
+}
+
+.performance-indicator {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.high {
+    background-color: #28a745;
+}
+
+.medium {
+    background-color: #ffc107;
+}
+
+.low {
+    background-color: #dc3545;
+}
+
+.stock-list {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f0f0f0;
+}
+
+.stock-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stock-list::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.stock-list::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}
+
+.chart-container {
+    height: 600px;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    border-color: #b8daff;
+    color: #004085;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .header {
+        padding: 1.5rem 0;
+    }
+    
+    .strategy-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 400px;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* 股票表格样式 */
+.table-sm td, .table-sm th {
+    padding: 0.5rem;
+}
+
+.table-sm th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+/* 按钮样式 */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* 徽章样式 */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+}
+
+/* 卡片内容间距 */
+.card-body {
+    padding: 1.5rem;
+}
+
+/* 列表样式 */
+ul {
+    padding-left: 1.2rem;
+}
+
+ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* 标题样式 */
+h5, h6 {
+    font-weight: 600;
+}
+
+/* 表格响应式 */
+.table-responsive {
+    border-radius: 5px;
+    overflow: hidden;
+}
