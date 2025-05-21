@@ -1,6 +1,7 @@
 pub mod atr;
 pub mod macd;
 pub mod rsi;
+pub mod volume_decline;
 
 use rayon::prelude::*;
 use egostrategy_datahub::models::stock::DailyData as DailyBar;

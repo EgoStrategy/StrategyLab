@@ -1,6 +1,7 @@
 use strategy_lab::strategies::{
     StockSelector,
     atr::AtrSelector,
+    volume_decline::VolumeDecliningSelector,
 };
 use strategy_lab::signals::{
     BuySignalGenerator,
@@ -69,6 +70,14 @@ fn main() -> Result<()> {
             top_n: 10,
             lookback_days: 100,
             score_weights: Default::default(),
+        }),
+        Box::new(VolumeDecliningSelector {
+            top_n: 10,
+            lookback_days: 30,
+            min_consecutive_decline_days: 2,  // 放宽到只需连续2天下跌
+            min_volume_decline_ratio: 0.1,    // 放宽到只需成交量缩减10%
+            price_period: 20,
+            check_support_level: false,       // 不检查是否破位
         }),
         // 可以添加更多选股策略
     ];
