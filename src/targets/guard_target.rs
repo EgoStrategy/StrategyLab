@@ -40,22 +40,23 @@ impl Target for GuardTarget {
             return false;
         }
         
-        let start_idx = data.len().saturating_sub(forecast_idx);
-        let end_idx = start_idx.saturating_sub(self.in_days);
-        
-        if end_idx >= start_idx || end_idx >= data.len() {
-            log::debug!("评估失败: 数据索引无效 (start_idx={}, end_idx={})", start_idx, end_idx);
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        // 我们需要检查从forecast_idx+1到forecast_idx+in_days的数据
+        if data.len() <= forecast_idx + self.in_days {
+            log::debug!("评估失败: 数据不足 (需要 {} 天, 实际 {} 天)", 
+                forecast_idx + self.in_days, data.len());
             return false;
         }
         
-        log::debug!("评估区间: 从idx={}到idx={}, 买入价={:.2}", end_idx, start_idx, buy_price);
+        log::debug!("评估区间: 从idx={}到idx={}, 买入价={:.2}", 
+            forecast_idx + 1, forecast_idx + self.in_days, buy_price);
         
         // 检查区间内是否触发止损
-        for i in end_idx..start_idx {
+        for i in (forecast_idx + 1)..=(forecast_idx + self.in_days) {
             let low_return = (data[i].low - buy_price) / buy_price;
             if low_return <= -self.stop_loss {
                 log::debug!("止损触发: 第{}天亏损{:.2}% (止损{:.2}%)", 
-                    i - end_idx + 1, -low_return * 100.0, self.stop_loss * 100.0);
+                    i - forecast_idx, -low_return * 100.0, self.stop_loss * 100.0);
                 return false;
             }
         }

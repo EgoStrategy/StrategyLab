@@ -1,5 +1,5 @@
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
-use crate::stock::indicators::{calculate_atr, standard_deviation, moving_average, extract_price_data};
+use crate::stock::indicators::{calculate_atr, standard_deviation, extract_price_data};
 use super::StockSelector;
 
 /// ATR策略的特征提取结果
@@ -18,20 +18,20 @@ pub struct AtrFeatures {
     pub volume_ratio: f32,
 }
 
-/// 从历史数据中提取ATR相关特征
+/// 从历史数据中提取ATR相关特征 - 适用于倒序数据
 pub fn extract_atr_features(history: &[DailyBar]) -> AtrFeatures {
     let (_opens, highs, lows, closes, volumes, amounts) = extract_price_data(history);
     
-    // 获取最新一天的数据
-    let last = history.last().unwrap();
+    // 获取最新一天的数据（倒序数据中的第一个）
+    let last = &history[0];
     
     // 计算ATR
     let atr_values = calculate_atr(&highs, &lows, &closes, 14);
-    let atr = *atr_values.last().unwrap_or(&0.0);
+    let atr = atr_values[0]; // 最新的ATR值（倒序数据中的第一个）
     
     // 计算振幅
-    let amplitude = if closes.len() > 1 {
-        (highs.last().unwrap() - lows.last().unwrap()) / closes[closes.len() - 2].max(1.0)
+    let amplitude = if history.len() > 1 {
+        (highs[0] - lows[0]) / closes[1].max(1.0)
     } else {
         0.0
     };
@@ -39,15 +39,24 @@ pub fn extract_atr_features(history: &[DailyBar]) -> AtrFeatures {
     // 计算历史波动率
     let hist_vol = standard_deviation(&closes);
     
-    // 计算成交量均值
-    let mean_vol = moving_average(&volumes, 5).last().unwrap_or(&0.0).to_owned();
+    // 计算成交量均值（最近5天）
+    let vol_lookback = 5.min(history.len());
+    let mut mean_vol = 0.0;
+    for i in 0..vol_lookback {
+        mean_vol += volumes[i];
+    }
+    mean_vol /= vol_lookback as f32;
     
-    // 计算成交额均值
-    let mean_amt = moving_average(&amounts, 5).last().unwrap_or(&0.0).to_owned();
+    // 计算成交额均值（最近5天）
+    let mut mean_amt = 0.0;
+    for i in 0..vol_lookback {
+        mean_amt += amounts[i];
+    }
+    mean_amt /= vol_lookback as f32;
     
     // 计算量比
     let volume_ratio = if mean_vol > 1.0 {
-        volumes.last().unwrap() / mean_vol
+        volumes[0] / mean_vol
     } else {
         0.0
     };
@@ -133,23 +142,23 @@ impl StockSelector for AtrSelector {
     }
     
     fn calculate_score(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
-        if data.len() < self.lookback_days + forecast_idx {
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        if data.len() <= forecast_idx || data.len() < self.lookback_days {
             log::debug!("股票 {}: 数据不足，无法计算分数", symbol);
             return 0.0;
         }
         
-        let start = data.len().saturating_sub(self.lookback_days + forecast_idx);
-        let end = start + self.lookback_days;
-        
+        // 对于倒序数据，我们需要从forecast_idx开始取lookback_days天的数据
+        let end = forecast_idx + self.lookback_days;
         if end > data.len() {
-            log::debug!("股票 {}: 索引超出范围 (start={}, end={}, len={})", 
-                symbol, start, end, data.len());
+            log::debug!("股票 {}: 索引超出范围 (forecast_idx={}, lookback_days={}, len={})", 
+                symbol, forecast_idx, self.lookback_days, data.len());
             return 0.0;
         }
         
-        let history = &data[start..end];
-        log::debug!("股票 {}: 使用历史数据 {} 条记录 (start={}, end={})", 
-            symbol, history.len(), start, end);
+        let history = &data[forecast_idx..end];
+        log::debug!("股票 {}: 使用历史数据 {} 条记录 (forecast_idx={}, end={})", 
+            symbol, history.len(), forecast_idx, end);
             
         let features = extract_atr_features(history);
         let score = calculate_atr_score(&features, &self.score_weights);

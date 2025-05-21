@@ -93,11 +93,11 @@ impl BacktestEngine {
         target: &dyn Target,
         back_days: usize,
     ) -> f32 {
-        let range: Vec<usize> = (1..=back_days).rev().collect();
+        let range: Vec<usize> = (1..=back_days).collect();
         
         let total_score: f32 = range.iter()
             .map(|&idx| {
-                let forecast_idx = idx + target.in_days();
+                let forecast_idx = idx;
                 self.run_single_test(selector, signal_generator, target, forecast_idx)
             })
             .sum();
@@ -117,7 +117,7 @@ impl<T: Target> Backtest<T> {
         Self { target }
     }
     
-    /// 运行回测
+    /// 运行回测 - 适用于倒序数据
     pub fn run(&self, signals: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) -> BacktestResult {
         let mut total_trades = signals.len();
         let mut winning_trades = 0;
@@ -131,10 +131,9 @@ impl<T: Target> Backtest<T> {
                 continue;
             }
             
-            let start_idx = data.len().saturating_sub(forecast_idx);
-            let end_idx = start_idx.saturating_sub(self.target.in_days());
-            
-            if end_idx >= start_idx || end_idx >= data.len() {
+            // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+            // 我们需要检查从forecast_idx+1到forecast_idx+in_days的数据
+            if data.len() <= forecast_idx + self.target.in_days() {
                 total_trades -= 1;
                 continue;
             }
@@ -144,20 +143,20 @@ impl<T: Target> Backtest<T> {
             let mut exit_day = 0;
             let mut is_win = false;
             
-            for (i, idx) in (end_idx..start_idx).enumerate() {
-                let current_return = (data[idx].high - buy_price) / buy_price;
+            for i in (forecast_idx + 1)..=(forecast_idx + self.target.in_days()) {
+                let current_return = (data[i].high - buy_price) / buy_price;
                 if current_return >= self.target.target_return() {
                     max_return = current_return;
-                    exit_day = i + 1;
+                    exit_day = i - forecast_idx;
                     is_win = true;
                     break;
                 }
                 
                 // 检查是否触发止损
-                let low_return = (data[idx].low - buy_price) / buy_price;
+                let low_return = (data[i].low - buy_price) / buy_price;
                 if low_return <= -self.target.stop_loss() {
                     max_return = -self.target.stop_loss();
-                    exit_day = i + 1;
+                    exit_day = i - forecast_idx;
                     break;
                 }
                 
@@ -169,7 +168,7 @@ impl<T: Target> Backtest<T> {
             
             // 如果没有提前退出，使用最后一天的收盘价计算收益
             if exit_day == 0 {
-                let last_idx = end_idx;
+                let last_idx = forecast_idx + self.target.in_days();
                 let last_return = (data[last_idx].close - buy_price) / buy_price;
                 max_return = last_return;
                 exit_day = self.target.in_days();

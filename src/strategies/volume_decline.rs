@@ -1,5 +1,5 @@
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
-use crate::stock::indicators::{extract_price_data};
+use crate::stock::indicators::extract_price_data;
 use super::StockSelector;
 use std::cmp::Ordering;
 
@@ -15,7 +15,7 @@ pub struct VolumeDecliningFeatures {
     pub consecutive_decline_days: i32, // 连续下跌天数
 }
 
-/// 从历史数据中提取连续下跌缩量相关特征
+/// 从历史数据中提取连续下跌缩量相关特征（适用于倒序数据）
 pub fn extract_volume_declining_features(
     history: &[DailyBar], 
     min_consecutive_decline_days: i32,
@@ -28,17 +28,17 @@ pub fn extract_volume_declining_features(
     
     let (_opens, highs, lows, _closes, volumes, _amounts) = extract_price_data(history);
     
-    // 获取最新一天的数据
-    let last = history.last().unwrap();
+    // 获取最新一天的数据（倒序数据中的第一个）
+    let last = &history[0];
     
-    // 计算连续下跌天数
+    // 计算连续下跌天数（注意：在倒序数据中，索引增加表示时间往前）
     let mut consecutive_decline_days = 0;
-    for i in (1..5).rev() {
+    for i in 1..5 {
         if i >= history.len() {
-            continue;
+            break;
         }
-        let idx = history.len() - 1 - i;
-        if idx + 1 < history.len() && history[idx].close > history[idx + 1].close {
+        // 比较当前日期和前一日期（在倒序数据中是后一个索引）
+        if history[i-1].close < history[i].close {
             consecutive_decline_days += 1;
         } else {
             break;
@@ -51,15 +51,13 @@ pub fn extract_volume_declining_features(
     }
     
     // 计算支撑位和压力位
-    // 使用过去N天的数据计算
-    let period = price_period.min(history.len() - 1);
-    let start_idx = history.len().saturating_sub(period);
-    let end_idx = history.len() - 1;
+    // 使用最近N天的数据计算（在倒序数据中是前N个元素）
+    let period = price_period.min(history.len());
     
     let mut support_level = f32::MAX;
     let mut resistance_level: f32 = 0.0;
     
-    for i in start_idx..=end_idx {
+    for i in 0..period {
         support_level = support_level.min(lows[i]);
         resistance_level = resistance_level.max(highs[i]);
     }
@@ -70,22 +68,20 @@ pub fn extract_volume_declining_features(
     }
     
     // 计算成交量缩减比例
-    // 使用5日平均成交量作为基准
-    let vol_lookback = 5.min(end_idx);
-    let vol_start = end_idx.saturating_sub(vol_lookback);
+    // 使用5日平均成交量作为基准（在倒序数据中是索引1-5的数据）
+    let vol_lookback = 5.min(history.len() - 1);
     
-    if vol_start >= end_idx {
-        return None;
-    }
-    
-    let avg_volume = if end_idx > vol_lookback {
-        let vol_slice = &volumes[vol_start..end_idx];
-        vol_slice.iter().sum::<f32>() / vol_slice.len() as f32
+    let avg_volume = if history.len() > vol_lookback + 1 {
+        let mut sum = 0.0;
+        for i in 1..=vol_lookback {
+            sum += volumes[i];
+        }
+        sum / vol_lookback as f32
     } else {
-        volumes[end_idx] // 如果数据不足，使用当前成交量
+        volumes[0] // 如果数据不足，使用当前成交量
     };
     
-    let current_volume = volumes[end_idx];
+    let current_volume = volumes[0]; // 最新的成交量（倒序数据中的第一个）
     let volume_decline_ratio = if avg_volume > 0.0 {
         1.0 - current_volume / avg_volume
     } else {
@@ -148,20 +144,20 @@ impl StockSelector for VolumeDecliningSelector {
     }
     
     fn calculate_score(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
-        if data.len() < self.lookback_days + forecast_idx {
+        // 注意：对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        if data.len() <= forecast_idx || data.len() < self.lookback_days {
             log::debug!("股票 {}: 数据不足，无法计算分数", symbol);
             return 0.0;
         }
         
-        let start = data.len().saturating_sub(self.lookback_days + forecast_idx);
-        let end = data.len() - forecast_idx;
-        
-        if end <= start {
-            log::debug!("股票 {}: 索引范围无效 (start={}, end={})", symbol, start, end);
+        // 对于倒序数据，我们需要从forecast_idx开始取lookback_days天的数据
+        let end = forecast_idx + self.lookback_days;
+        if end > data.len() {
+            log::debug!("股票 {}: 数据不足，无法计算分数", symbol);
             return 0.0;
         }
         
-        let history = &data[start..end];
+        let history = &data[forecast_idx..end];
         
         // 提取特征
         match extract_volume_declining_features(
@@ -208,18 +204,17 @@ impl StockSelector for VolumeDecliningSelector {
         let mut candidates = Vec::new();
         
         for (symbol, data) in stock_data {
-            if data.len() < self.lookback_days + forecast_idx {
+            // 对于倒序数据，检查数据长度是否足够
+            if data.len() <= forecast_idx || data.len() < self.lookback_days {
                 continue;
             }
             
-            let start = data.len().saturating_sub(self.lookback_days + forecast_idx);
-            let end = data.len() - forecast_idx;
-            
-            if end <= start {
+            let end = forecast_idx + self.lookback_days;
+            if end > data.len() {
                 continue;
             }
             
-            let history = &data[start..end];
+            let history = &data[forecast_idx..end];
             
             if let Some(features) = extract_volume_declining_features(
                 history, 

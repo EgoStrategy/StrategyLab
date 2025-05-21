@@ -1,7 +1,7 @@
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
 use super::BuySignalGenerator;
 
-/// 基于收盘价的买入信号生成器
+/// 基于收盘价的买入信号生成器 - 适用于倒序数据
 pub struct ClosePriceSignal;
 
 impl BuySignalGenerator for ClosePriceSignal {
@@ -10,19 +10,22 @@ impl BuySignalGenerator for ClosePriceSignal {
     }
     
     fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
-        let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
-        if idx < data.len() {
-            let price = data[idx].close;
-            log::debug!("股票 {}: 计算收盘价买入信号, idx={}, price={:.2}", symbol, idx, price);
-            price
-        } else {
-            log::debug!("股票 {}: 计算收盘价买入信号失败, idx={}, len={}", symbol, idx, data.len());
-            0.0
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        // 次日收盘价就是forecast_idx+1的收盘价
+        if data.len() <= forecast_idx + 1 {
+            log::debug!("股票 {}: 计算收盘价买入信号失败, forecast_idx={}, len={}", 
+                symbol, forecast_idx, data.len());
+            return 0.0;
         }
+        
+        let price = data[forecast_idx + 1].close;
+        log::debug!("股票 {}: 计算收盘价买入信号, forecast_idx={}, price={:.2}", 
+            symbol, forecast_idx, price);
+        price
     }
 }
 
-/// 基于开盘价的买入信号生成器
+/// 基于开盘价的买入信号生成器 - 适用于倒序数据
 pub struct OpenPriceSignal;
 
 impl BuySignalGenerator for OpenPriceSignal {
@@ -31,19 +34,22 @@ impl BuySignalGenerator for OpenPriceSignal {
     }
     
     fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
-        let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
-        if idx < data.len() {
-            let price = data[idx].open;
-            log::debug!("股票 {}: 计算开盘价买入信号, idx={}, price={:.2}", symbol, idx, price);
-            price
-        } else {
-            log::debug!("股票 {}: 计算开盘价买入信号失败, idx={}, len={}", symbol, idx, data.len());
-            0.0
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        // 次日开盘价就是forecast_idx+1的开盘价
+        if data.len() <= forecast_idx + 1 {
+            log::debug!("股票 {}: 计算开盘价买入信号失败, forecast_idx={}, len={}", 
+                symbol, forecast_idx, data.len());
+            return 0.0;
         }
+        
+        let price = data[forecast_idx + 1].open;
+        log::debug!("股票 {}: 计算开盘价买入信号, forecast_idx={}, price={:.2}", 
+            symbol, forecast_idx, price);
+        price
     }
 }
 
-/// 基于限价的买入信号生成器
+/// 基于限价的买入信号生成器 - 适用于倒序数据
 pub struct LimitPriceSignal {
     pub price_ratio: f32,  // 相对于前一日收盘价的比例
 }
@@ -62,15 +68,17 @@ impl BuySignalGenerator for LimitPriceSignal {
     }
     
     fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
-        let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
-        if idx > 0 && idx < data.len() {
-            let price = data[idx-1].close * self.price_ratio;
-            log::debug!("股票 {}: 计算限价买入信号, idx={}, 前收={:.2}, 比例={}%, 价格={:.2}", 
-                symbol, idx, data[idx-1].close, self.price_ratio * 100.0, price);
-            price
-        } else {
-            log::debug!("股票 {}: 计算限价买入信号失败, idx={}, len={}", symbol, idx, data.len());
-            0.0
+        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+        // 前一日收盘价就是forecast_idx的收盘价
+        if data.len() <= forecast_idx {
+            log::debug!("股票 {}: 计算限价买入信号失败, forecast_idx={}, len={}", 
+                symbol, forecast_idx, data.len());
+            return 0.0;
         }
+        
+        let price = data[forecast_idx].close * self.price_ratio;
+        log::debug!("股票 {}: 计算限价买入信号, forecast_idx={}, 前收={:.2}, 比例={}%, 价格={:.2}", 
+            symbol, forecast_idx, data[forecast_idx].close, self.price_ratio * 100.0, price);
+        price
     }
 }
