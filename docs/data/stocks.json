@@ -172,7 +172,7 @@
       "signal_name": "次日收盘价买入",
       "target_name": "3天内收益率达到6%",
       "performance": {
-        "success_rate": 0.7250001,
+        "success_rate": 0.75,
         "avg_return": 0.03,
         "max_return": 0.08,
         "max_loss": -0.02,
@@ -186,14 +186,6 @@
           "target_price": 27.6766,
           "stop_loss_price": 25.587801,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 37.26,
-          "target_price": 39.495598,
-          "stop_loss_price": 36.514797,
-          "prev_close": 40.56
         }
       ]
     },
@@ -202,7 +194,7 @@
       "signal_name": "次日开盘价买入",
       "target_name": "3天内收益率达到6%",
       "performance": {
-        "success_rate": 0.6083333,
+        "success_rate": 0.69166666,
         "avg_return": 0.03,
         "max_return": 0.08,
         "max_loss": -0.02,
@@ -216,14 +208,6 @@
           "target_price": 27.7508,
           "stop_loss_price": 25.6564,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 38.09,
-          "target_price": 40.375397,
-          "stop_loss_price": 37.3282,
-          "prev_close": 40.56
         }
       ]
     },
@@ -246,14 +230,6 @@
           "target_price": 27.102291,
           "stop_loss_price": 25.056837,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 36.4658,
-          "target_price": 38.653748,
-          "stop_loss_price": 35.736485,
-          "prev_close": 40.56
         }
       ]
     },
@@ -438,14 +414,6 @@
           "target_price": 26.3711,
           "stop_loss_price": 25.587801,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 37.26,
-          "target_price": 37.6326,
-          "stop_loss_price": 36.514797,
-          "prev_close": 40.56
         }
       ]
     },
@@ -454,7 +422,7 @@
       "signal_name": "次日开盘价买入",
       "target_name": "5天内收益率达到1%",
       "performance": {
-        "success_rate": 0.81666666,
+        "success_rate": 0.88333344,
         "avg_return": 0.03,
         "max_return": 0.08,
         "max_loss": -0.02,
@@ -468,14 +436,6 @@
           "target_price": 26.4418,
           "stop_loss_price": 25.6564,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 38.09,
-          "target_price": 38.4709,
-          "stop_loss_price": 37.3282,
-          "prev_close": 40.56
         }
       ]
     },
@@ -498,266 +458,6 @@
           "target_price": 25.823883,
           "stop_loss_price": 25.056837,
           "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 36.4658,
-          "target_price": 36.83046,
-          "stop_loss_price": 35.736485,
-          "prev_close": 40.56
-        }
-      ]
-    },
-    {
-      "strategy_name": "ATR波动选股策略",
-      "signal_name": "次日收盘价买入",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.08333334,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600053",
-          "name": "九鼎投资",
-          "buy_price": 16.05,
-          "target_price": 16.05,
-          "stop_loss_price": 15.728999,
-          "prev_close": 12.49
-        },
-        {
-          "symbol": "600006",
-          "name": "东风股份",
-          "buy_price": 7.12,
-          "target_price": 7.12,
-          "stop_loss_price": 6.9776,
-          "prev_close": 6.77
-        },
-        {
-          "symbol": "600129",
-          "name": "太极集团",
-          "buy_price": 21.18,
-          "target_price": 21.18,
-          "stop_loss_price": 20.756401,
-          "prev_close": 28.57
-        },
-        {
-          "symbol": "600081",
-          "name": "东风科技",
-          "buy_price": 14.39,
-          "target_price": 14.39,
-          "stop_loss_price": 14.1022005,
-          "prev_close": 8.46
-        },
-        {
-          "symbol": "600052",
-          "name": "东望时代",
-          "buy_price": 4.27,
-          "target_price": 4.27,
-          "stop_loss_price": 4.1846,
-          "prev_close": 3.91
-        }
-      ]
-    },
-    {
-      "strategy_name": "ATR波动选股策略",
-      "signal_name": "次日开盘价买入",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.07500001,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600053",
-          "name": "九鼎投资",
-          "buy_price": 16.05,
-          "target_price": 16.05,
-          "stop_loss_price": 15.728999,
-          "prev_close": 12.49
-        },
-        {
-          "symbol": "600006",
-          "name": "东风股份",
-          "buy_price": 7.1,
-          "target_price": 7.1,
-          "stop_loss_price": 6.958,
-          "prev_close": 6.77
-        },
-        {
-          "symbol": "600129",
-          "name": "太极集团",
-          "buy_price": 21.4,
-          "target_price": 21.4,
-          "stop_loss_price": 20.972,
-          "prev_close": 28.57
-        },
-        {
-          "symbol": "600081",
-          "name": "东风科技",
-          "buy_price": 14.48,
-          "target_price": 14.48,
-          "stop_loss_price": 14.1904,
-          "prev_close": 8.46
-        },
-        {
-          "symbol": "600052",
-          "name": "东望时代",
-          "buy_price": 4.19,
-          "target_price": 4.19,
-          "stop_loss_price": 4.1062,
-          "prev_close": 3.91
-        }
-      ]
-    },
-    {
-      "strategy_name": "ATR波动选股策略",
-      "signal_name": "次日限价买入(98%)",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.175,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600053",
-          "name": "九鼎投资",
-          "buy_price": 17.3068,
-          "target_price": 17.3068,
-          "stop_loss_price": 16.960665,
-          "prev_close": 12.49
-        },
-        {
-          "symbol": "600006",
-          "name": "东风股份",
-          "buy_price": 7.6734,
-          "target_price": 7.6734,
-          "stop_loss_price": 7.5199323,
-          "prev_close": 6.77
-        },
-        {
-          "symbol": "600129",
-          "name": "太极集团",
-          "buy_price": 21.462,
-          "target_price": 21.462,
-          "stop_loss_price": 21.03276,
-          "prev_close": 28.57
-        },
-        {
-          "symbol": "600081",
-          "name": "东风科技",
-          "buy_price": 14.6412,
-          "target_price": 14.6412,
-          "stop_loss_price": 14.348376,
-          "prev_close": 8.46
-        },
-        {
-          "symbol": "600052",
-          "name": "东望时代",
-          "buy_price": 4.2924004,
-          "target_price": 4.2924004,
-          "stop_loss_price": 4.2065525,
-          "prev_close": 3.91
-        }
-      ]
-    },
-    {
-      "strategy_name": "连续下跌缩量策略",
-      "signal_name": "次日收盘价买入",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.62500006,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600030",
-          "name": "中信证券",
-          "buy_price": 26.11,
-          "target_price": 26.11,
-          "stop_loss_price": 25.587801,
-          "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 37.26,
-          "target_price": 37.26,
-          "stop_loss_price": 36.514797,
-          "prev_close": 40.56
-        }
-      ]
-    },
-    {
-      "strategy_name": "连续下跌缩量策略",
-      "signal_name": "次日开盘价买入",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.5333333,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600030",
-          "name": "中信证券",
-          "buy_price": 26.18,
-          "target_price": 26.18,
-          "stop_loss_price": 25.6564,
-          "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 38.09,
-          "target_price": 38.09,
-          "stop_loss_price": 37.3282,
-          "prev_close": 40.56
-        }
-      ]
-    },
-    {
-      "strategy_name": "连续下跌缩量策略",
-      "signal_name": "次日限价买入(98%)",
-      "target_name": "10天内不触发2%止损",
-      "performance": {
-        "success_rate": 0.8416667,
-        "avg_return": 0.03,
-        "max_return": 0.08,
-        "max_loss": -0.02,
-        "avg_hold_days": 5.0
-      },
-      "recommendations": [
-        {
-          "symbol": "600030",
-          "name": "中信证券",
-          "buy_price": 25.568201,
-          "target_price": 25.568201,
-          "stop_loss_price": 25.056837,
-          "prev_close": 20.19
-        },
-        {
-          "symbol": "600038",
-          "name": "中直股份",
-          "buy_price": 36.4658,
-          "target_price": 36.4658,
-          "stop_loss_price": 35.736485,
-          "prev_close": 40.56
         }
       ]
     }
