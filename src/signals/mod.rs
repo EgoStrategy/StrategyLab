@@ -13,12 +13,21 @@ pub trait BuySignalGenerator: Sync + Send {
     
     /// 生成买入信号
     fn generate_signals(&self, candidates: Vec<(String, Vec<DailyBar>)>, forecast_idx: usize) -> Vec<(String, Vec<DailyBar>, f32)> {
-        candidates
+        log::info!("生成买入信号: {}, 预测天数={}, 候选股票数={}", 
+            self.name(), forecast_idx, candidates.len());
+        
+        let signals = candidates
             .into_iter()
             .map(|(symbol, data)| {
                 let buy_price = self.calculate_buy_price(&symbol, &data, forecast_idx);
+                log::debug!("股票 {}: 计算买入价格 = {:.2}", symbol, buy_price);
                 (symbol, data, buy_price)
             })
-            .collect()
+            .collect::<Vec<_>>();
+            
+        let valid_signals = signals.iter().filter(|(_, _, price)| *price > 0.0).count();
+        log::info!("生成了 {} 个有效买入信号 (总共 {} 个)", valid_signals, signals.len());
+        
+        signals
     }
 }

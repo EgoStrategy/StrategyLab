@@ -9,11 +9,14 @@ impl BuySignalGenerator for ClosePriceSignal {
         String::from("次日收盘价买入")
     }
     
-    fn calculate_buy_price(&self, _symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
+    fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
         let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
         if idx < data.len() {
-            data[idx].close
+            let price = data[idx].close;
+            log::debug!("股票 {}: 计算收盘价买入信号, idx={}, price={:.2}", symbol, idx, price);
+            price
         } else {
+            log::debug!("股票 {}: 计算收盘价买入信号失败, idx={}, len={}", symbol, idx, data.len());
             0.0
         }
     }
@@ -27,11 +30,14 @@ impl BuySignalGenerator for OpenPriceSignal {
         String::from("次日开盘价买入")
     }
     
-    fn calculate_buy_price(&self, _symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
+    fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
         let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
         if idx < data.len() {
-            data[idx].open
+            let price = data[idx].open;
+            log::debug!("股票 {}: 计算开盘价买入信号, idx={}, price={:.2}", symbol, idx, price);
+            price
         } else {
+            log::debug!("股票 {}: 计算开盘价买入信号失败, idx={}, len={}", symbol, idx, data.len());
             0.0
         }
     }
@@ -55,11 +61,15 @@ impl BuySignalGenerator for LimitPriceSignal {
         format!("次日限价买入({}%)", self.price_ratio * 100.0)
     }
     
-    fn calculate_buy_price(&self, _symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
+    fn calculate_buy_price(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
         let idx = data.len().saturating_sub(forecast_idx).saturating_sub(1);
         if idx > 0 && idx < data.len() {
-            data[idx-1].close * self.price_ratio
+            let price = data[idx-1].close * self.price_ratio;
+            log::debug!("股票 {}: 计算限价买入信号, idx={}, 前收={:.2}, 比例={}%, 价格={:.2}", 
+                symbol, idx, data[idx-1].close, self.price_ratio * 100.0, price);
+            price
         } else {
+            log::debug!("股票 {}: 计算限价买入信号失败, idx={}, len={}", symbol, idx, data.len());
             0.0
         }
     }

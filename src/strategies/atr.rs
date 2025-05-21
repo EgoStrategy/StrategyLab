@@ -100,7 +100,7 @@ impl Default for AtrSelector {
     fn default() -> Self {
         Self {
             top_n: 10,
-            lookback_days: 200,
+            lookback_days: 100,
             score_weights: ScoreWeights::default(),
         }
     }
@@ -132,15 +132,31 @@ impl StockSelector for AtrSelector {
         self.top_n
     }
     
-    fn calculate_score(&self, _symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
+    fn calculate_score(&self, symbol: &str, data: &[DailyBar], forecast_idx: usize) -> f32 {
         if data.len() < self.lookback_days + forecast_idx {
+            log::debug!("股票 {}: 数据不足，无法计算分数", symbol);
             return 0.0;
         }
         
         let start = data.len().saturating_sub(self.lookback_days + forecast_idx);
-        let history = &data[start..(start + self.lookback_days)];
-        let features = extract_atr_features(history);
+        let end = start + self.lookback_days;
         
-        calculate_atr_score(&features, &self.score_weights)
+        if end > data.len() {
+            log::debug!("股票 {}: 索引超出范围 (start={}, end={}, len={})", 
+                symbol, start, end, data.len());
+            return 0.0;
+        }
+        
+        let history = &data[start..end];
+        log::debug!("股票 {}: 使用历史数据 {} 条记录 (start={}, end={})", 
+            symbol, history.len(), start, end);
+            
+        let features = extract_atr_features(history);
+        let score = calculate_atr_score(&features, &self.score_weights);
+        
+        log::debug!("股票 {}: 计算得分 = {:.2}, ATR = {:.4}, 振幅 = {:.2}%, 量比 = {:.2}", 
+            symbol, score, features.atr, features.amplitude * 100.0, features.volume_ratio);
+            
+        score
     }
 }

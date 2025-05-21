@@ -44,7 +44,7 @@ impl BacktestEngine {
         
         for symbol in filtered_symbols {
             if let Some(daily_bars) = self.data_provider.get_daily_bars(&symbol) {
-                if daily_bars.len() >= 250 {  // 确保有足够的历史数据
+                if daily_bars.len() >= 120 {  // 确保有足够的历史数据
                     self.stock_data.insert(symbol.clone(), daily_bars.clone());
                 }
             }
@@ -67,14 +67,22 @@ impl BacktestEngine {
             .map(|(symbol, data)| (symbol.clone(), data.clone()))
             .collect();
             
+        info!("运行单次回测: 策略={}, 信号={}, 目标={}, 预测天数={}",
+            selector.name(), signal_generator.name(), target.name(), forecast_idx);
+            
         // 1. 选股
         let candidates = selector.run(&stock_data, forecast_idx);
+        info!("选股结果: 选出 {} 只股票", candidates.len());
         
         // 2. 生成买入信号
         let signals = signal_generator.generate_signals(candidates, forecast_idx);
+        info!("信号生成: 生成 {} 个买入信号", signals.len());
         
         // 3. 评估目标
-        target.run(signals, forecast_idx)
+        let success_rate = target.run(signals, forecast_idx);
+        info!("目标评估: 成功率 = {:.2}%", success_rate * 100.0);
+        
+        success_rate
     }
     
     /// 运行回测

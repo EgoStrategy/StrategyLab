@@ -12,7 +12,9 @@ pub struct StockDataProvider {
 impl StockDataProvider {
     /// 创建新的数据提供者实例
     pub fn new() -> Result<Self> {
+        log::info!("初始化数据提供者...");
         let provider = DataHubProvider::new()?;
+        log::info!("数据提供者初始化完成");
         Ok(Self {
             provider,
             cache: HashMap::new(),
@@ -22,9 +24,12 @@ impl StockDataProvider {
     /// 获取指定股票代码的数据
     pub fn get_stock(&mut self, symbol: &str) -> Option<&Stock> {
         if !self.cache.contains_key(symbol) {
+            log::debug!("缓存中没有股票 {}, 尝试获取", symbol);
             if let Some(stock) = self.provider.get_stock_by_symbol(symbol) {
+                log::debug!("获取到股票 {} 的数据", symbol);
                 self.cache.insert(symbol.to_string(), stock.clone());
             } else {
+                log::debug!("无法获取股票 {} 的数据", symbol);
                 return None;
             }
         }
@@ -33,27 +38,25 @@ impl StockDataProvider {
     
     /// 获取所有股票列表
     pub fn get_all_stocks(&self) -> Vec<String> {
-        self.provider.get_all_stocks().iter().map(|stock| stock.symbol.clone()).collect()
+        let stocks = self.provider.get_all_stocks();
+        log::info!("获取到 {} 只股票", stocks.len());
+        stocks.iter().map(|stock| stock.symbol.clone()).collect()
     }
     
     /// 获取指定股票的日线数据
     pub fn get_daily_bars(&mut self, symbol: &str) -> Option<&Vec<DailyBar>> {
-        self.get_stock(symbol).map(|stock| &stock.daily)
-    }
-    
-    /// 获取指定股票的名称
-    pub fn get_stock_name(&mut self, symbol: &str) -> Option<String> {
-        self.get_stock(symbol).map(|stock| stock.name.clone())
-    }
-    
-    /// 获取指定股票的交易所
-    pub fn get_stock_exchange(&mut self, symbol: &str) -> Option<String> {
-        self.get_stock(symbol).map(|stock| stock.exchange.clone())
+        let result = self.get_stock(symbol).map(|stock| &stock.daily);
+        if let Some(bars) = &result {
+            log::debug!("获取股票 {} 的日线数据: {} 条记录", symbol, bars.len());
+        } else {
+            log::debug!("获取股票 {} 的日线数据失败", symbol);
+        }
+        result
     }
     
     /// 过滤股票列表，排除科创板、创业板等
     pub fn filter_stocks(&self, symbols: Vec<String>) -> Vec<String> {
-        symbols.into_iter()
+        let filtered = symbols.into_iter()
             .filter(|symbol| {
                 // 排除科创板(688)、创业板(300/301/302)等
                 !symbol.starts_with("688") && 
@@ -61,6 +64,9 @@ impl StockDataProvider {
                 !symbol.starts_with("301") && 
                 !symbol.starts_with("302")
             })
-            .collect()
+            .collect::<Vec<_>>();
+            
+        log::info!("过滤后剩余 {} 只股票", filtered.len());
+        filtered
     }
 }

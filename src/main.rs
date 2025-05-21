@@ -15,13 +15,16 @@ use strategy_lab::scorecard::Scorecard;
 
 fn main() -> anyhow::Result<()> {
     // 初始化日志
+    std::env::set_var("RUST_LOG", "info,strategy_lab=debug");
     env_logger::init();
+    
+    log::info!("开始运行策略评分卡...");
     
     // 创建选股策略
     let selectors: Vec<Box<dyn StockSelector>> = vec![
         Box::new(AtrSelector {
             top_n: 10,
-            lookback_days: 200,
+            lookback_days: 100,
             score_weights: Default::default(),
         }),
         // 可以添加更多选股策略
@@ -36,10 +39,12 @@ fn main() -> anyhow::Result<()> {
     
     // 创建目标
     let targets: Vec<Box<dyn Target>> = vec![
-        Box::new(ReturnTarget { target_return: 0.06, in_days: 3 }),
-        Box::new(ReturnTarget { target_return: 0.03, in_days: 5 }),
-        Box::new(GuardTarget { min_return: 0.01, in_days: 10 }),
+        Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.02, in_days: 3 }),
+        Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.02, in_days: 5 }),
+        Box::new(GuardTarget { stop_loss: 0.02, in_days: 10 }),
     ];
+    
+    log::info!("创建评分卡...");
     
     // 创建评分卡
     let scorecard = Scorecard::new(
@@ -49,6 +54,8 @@ fn main() -> anyhow::Result<()> {
         targets,
     )?;
     
+    log::info!("运行评分卡...");
+    
     // 运行评分卡
     let results = scorecard.run();
     
@@ -57,6 +64,8 @@ fn main() -> anyhow::Result<()> {
     
     // 打印最佳组合
     scorecard.print_best_combination(&results);
+    
+    log::info!("评分卡运行完成");
     
     Ok(())
 }

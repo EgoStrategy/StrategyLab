@@ -36,6 +36,7 @@ impl Target for GuardTarget {
     
     fn evaluate(&self, data: &[DailyBar], buy_price: f32, forecast_idx: usize) -> bool {
         if buy_price <= 0.0 {
+            log::debug!("评估失败: 买入价格无效 ({})", buy_price);
             return false;
         }
         
@@ -43,17 +44,23 @@ impl Target for GuardTarget {
         let end_idx = start_idx.saturating_sub(self.in_days);
         
         if end_idx >= start_idx || end_idx >= data.len() {
+            log::debug!("评估失败: 数据索引无效 (start_idx={}, end_idx={})", start_idx, end_idx);
             return false;
         }
+        
+        log::debug!("评估区间: 从idx={}到idx={}, 买入价={:.2}", end_idx, start_idx, buy_price);
         
         // 检查区间内是否触发止损
         for i in end_idx..start_idx {
             let low_return = (data[i].low - buy_price) / buy_price;
             if low_return <= -self.stop_loss {
+                log::debug!("止损触发: 第{}天亏损{:.2}% (止损{:.2}%)", 
+                    i - end_idx + 1, -low_return * 100.0, self.stop_loss * 100.0);
                 return false;
             }
         }
         
+        log::debug!("目标达成: {}天内未触发{:.2}%止损", self.in_days, self.stop_loss * 100.0);
         true
     }
 }

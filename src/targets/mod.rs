@@ -23,14 +23,25 @@ pub trait Target: Sync + Send {
     /// 运行目标评估，返回达成率
     fn run(&self, candidates: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) -> f32 {
         if candidates.is_empty() {
+            log::warn!("目标评估: 没有候选股票，返回0.0");
             return 0.0;
         }
         
-        let success_count = candidates
-            .iter()
-            .filter(|(_, data, buy_price)| self.evaluate(data, *buy_price, forecast_idx))
-            .count();
+        log::info!("目标评估: 开始评估 {} 只股票", candidates.len());
+        
+        let mut success_count = 0;
+        for (symbol, data, buy_price) in &candidates {
+            let result = self.evaluate(data, *buy_price, forecast_idx);
+            log::debug!("股票 {}: 买入价={:.2}, 评估结果={}", symbol, buy_price, result);
+            if result {
+                success_count += 1;
+            }
+        }
+        
+        let success_rate = success_count as f32 / candidates.len() as f32;
+        log::info!("目标评估: 成功 {}/{}, 成功率 {:.2}%", 
+            success_count, candidates.len(), success_rate * 100.0);
             
-        success_count as f32 / candidates.len() as f32
+        success_rate
     }
 }

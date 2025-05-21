@@ -18,18 +18,34 @@ pub trait StockSelector: Sync + Send {
     
     /// 运行选股策略，返回候选股票列表
     fn run(&self, stock_data: &[(String, Vec<DailyBar>)], forecast_idx: usize) -> Vec<(String, Vec<DailyBar>)> {
+        log::info!("运行选股策略: {}, 预测天数={}", self.name(), forecast_idx);
+        
+        if stock_data.is_empty() {
+            log::warn!("没有股票数据可供选择");
+            return Vec::new();
+        }
+        
+        log::info!("计算 {} 只股票的分数", stock_data.len());
+        
         let mut scores: Vec<(&String, &Vec<DailyBar>, f32)> = stock_data
             .par_iter()
             .map(|(symbol, data)| {
-                (symbol, data, self.calculate_score(symbol, data, forecast_idx))
+                let score = self.calculate_score(symbol, data, forecast_idx);
+                (symbol, data, score)
             })
             .collect();
             
         scores.par_sort_unstable_by(|a, b| b.2.partial_cmp(&a.2).unwrap_or(std::cmp::Ordering::Equal));
         
-        scores.into_iter()
+        let candidates: Vec<(String, Vec<DailyBar>)> = scores.into_iter()
             .take(self.top_n())
-            .map(|(symbol, data, _)| (symbol.clone(), data.clone()))
-            .collect()
+            .map(|(symbol, data, score)| {
+                log::debug!("选中股票: {}, 分数: {:.2}", symbol, score);
+                (symbol.clone(), data.clone())
+            })
+            .collect();
+            
+        log::info!("选股完成: 选出 {} 只候选股票", candidates.len());
+        candidates
     }
 }
