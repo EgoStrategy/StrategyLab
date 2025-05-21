@@ -74,7 +74,7 @@ fn main() -> Result<()> {
         Box::new(VolumeDecliningSelector {
             top_n: 10,
             lookback_days: 30,
-            min_consecutive_decline_days: 2,  // 放宽到只需连续2天下跌
+            min_consecutive_decline_days: 3,  // 放宽到只需连续2天下跌
             min_volume_decline_ratio: 0.1,    // 放宽到只需成交量缩减10%
             price_period: 20,
             check_support_level: false,       // 不检查是否破位
@@ -92,8 +92,7 @@ fn main() -> Result<()> {
     // 创建目标
     let targets: Vec<Box<dyn Target>> = vec![
         Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.02, in_days: 3 }),
-        Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.02, in_days: 5 }),
-        Box::new(GuardTarget { stop_loss: 0.02, in_days: 10 }),
+        Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.02, in_days: 5 })
     ];
     
     log::info!("创建评分卡...");
