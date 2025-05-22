@@ -1,21 +1,16 @@
-use strategy_lab::backtest::{BacktestEngine, BacktestResult};
+use strategy_lab::backtest::BacktestEngine;
 use strategy_lab::strategies::{
-    StockSelector,
-    atr::AtrSelector,
-    volume_decline::VolumeDecliningSelector,
-    breakthrough_pullback::BreakthroughPullbackSelector,  // 导入新策略
+    trend::atr::AtrSelector,
+    volume::volume_decline::VolumeDecliningSelector,
+    reversal::breakthrough_pullback::BreakthroughPullbackSelector,
 };
 use strategy_lab::signals::{
-    BuySignalGenerator,
-    price::{ClosePriceSignal, OpenPriceSignal, LimitPriceSignal},
-    bottom_reverse::BottomReverseSignal,  // 导入新信号
+    price::close::ClosePriceSignal,
+    price::open::OpenPriceSignal,
+    pattern::bottom_reverse::BottomReverseSignal,
 };
-use strategy_lab::targets::{
-    Target,
-    return_target::ReturnTarget,
-};
+use strategy_lab::targets::return_target::ReturnTarget;
 use strategy_lab::scorecard::Scorecard;
-use strategy_lab::stock::data_provider::StockDataProvider;
 
 use std::fs::{self, File};
 use std::io::Write;
@@ -23,6 +18,8 @@ use std::path::Path;
 use serde::{Serialize, Deserialize};
 use chrono::Local;
 use anyhow::Result;
+use log::info;
+use env_logger;
 
 #[derive(Serialize, Deserialize)]
 struct StockRecommendation {
@@ -37,12 +34,14 @@ struct StockRecommendation {
 #[derive(Serialize, Deserialize)]
 struct StrategyPerformance {
     success_rate: f32,
-    stop_loss_rate: f32,       // 止损率
-    stop_loss_fail_rate: f32,  // 止损失败率
+    stop_loss_rate: f32,
+    stop_loss_fail_rate: f32,
     avg_return: f32,
     max_return: f32,
     max_loss: f32,
     avg_hold_days: f32,
+    sharpe_ratio: f32,
+    max_drawdown: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -57,19 +56,16 @@ struct StrategyResult {
 #[derive(Serialize, Deserialize)]
 struct ExportData {
     update_date: String,
-    best_combinations: Vec<usize>,  // 索引到strategies数组
+    best_combinations: Vec<usize>,
     strategies: Vec<StrategyResult>,
 }
 
 fn main() -> Result<()> {
     // 初始化日志
-    std::env::set_var("RUST_LOG", "info,strategy_lab=debug");
     env_logger::init();
-    
-    log::info!("开始运行策略评分卡...");
-    
+
     // 创建选股策略
-    let selectors: Vec<Box<dyn StockSelector>> = vec![
+    let selectors: Vec<Box<dyn strategy_lab::strategies::StockSelector>> = vec![
         Box::new(AtrSelector {
             top_n: 10,
             lookback_days: 100,
@@ -78,12 +74,11 @@ fn main() -> Result<()> {
         Box::new(VolumeDecliningSelector {
             top_n: 10,
             lookback_days: 30,
-            min_consecutive_decline_days: 3,  // 放宽到只需连续2天下跌
-            min_volume_decline_ratio: 0.1,    // 放宽到只需成交量缩减10%
+            min_consecutive_decline_days: 3,
+            min_volume_decline_ratio: 0.1,
             price_period: 20,
-            check_support_level: false,       // 不检查是否破位
+            check_support_level: false,
         }),
-        // 添加新的突破回踩策略
         Box::new(BreakthroughPullbackSelector {
             top_n: 10,
             lookback_days: 10,
@@ -94,22 +89,18 @@ fn main() -> Result<()> {
     ];
     
     // 创建买入信号生成器
-    let signals: Vec<Box<dyn BuySignalGenerator>> = vec![
+    let signals: Vec<Box<dyn strategy_lab::signals::BuySignalGenerator>> = vec![
         Box::new(ClosePriceSignal),
         Box::new(OpenPriceSignal),
-        Box::new(LimitPriceSignal::default()),
-        // 添加新的地包天买入信号
         Box::new(BottomReverseSignal::default()),
     ];
     
     // 创建目标
-    let targets: Vec<Box<dyn Target>> = vec![
+    let targets: Vec<Box<dyn strategy_lab::targets::Target>> = vec![
         Box::new(ReturnTarget { target_return: 0.02, stop_loss: 0.01, in_days: 1 }),
         Box::new(ReturnTarget { target_return: 0.06, stop_loss: 0.01, in_days: 3 }),
         Box::new(ReturnTarget { target_return: 0.01, stop_loss: 0.01, in_days: 5 })
     ];
-    
-    log::info!("创建评分卡...");
     
     // 创建评分卡
     let scorecard = Scorecard::new(
@@ -118,8 +109,6 @@ fn main() -> Result<()> {
         signals,
         targets,
     )?;
-    
-    log::info!("运行评分卡...");
     
     // 运行评分卡
     let results = scorecard.run();
@@ -134,112 +123,22 @@ fn main() -> Result<()> {
     // 导出结果到JSON
     export_results_to_json(&scorecard, &results, best_combination)?;
     
-    log::info!("评分卡运行完成");
+    info!("评分卡运行完成");
     
     Ok(())
 }
 
-/// 运行详细回测以获取性能指标
-fn run_detailed_backtest(
-    engine: &BacktestEngine,
-    selector: &dyn StockSelector,
-    signal: &dyn BuySignalGenerator,
-    target: &dyn Target,
-    back_days: usize
-) -> BacktestResult {
-    log::info!("运行详细回测以获取性能指标...");
-    
-    let mut total_trades = 0;
-    let mut winning_trades = 0;
-    let mut losing_trades = 0;
-    let mut stop_loss_trades = 0;       // 添加止损交易计数
-    let mut stop_loss_fail_trades = 0;  // 添加止损失败交易计数
-    let mut total_return = 0.0;
-    let mut max_return: f32 = -1.0;
-    let mut max_loss: f32 = 0.0;
-    let mut total_hold_days = 0.0;
-    
-    // 对每个回测日期运行回测
-    for forecast_idx in 1..=back_days {
-        let result = engine.run_detailed_test(selector, signal, target, forecast_idx);
-        
-        // 累加结果
-        total_trades += result.total_trades;
-        winning_trades += result.winning_trades;
-        losing_trades += result.losing_trades;
-        stop_loss_trades += result.stop_loss_trades;         // 累加止损交易数
-        stop_loss_fail_trades += result.stop_loss_fail_trades; // 累加止损失败交易数
-        total_return += result.avg_return * result.total_trades as f32;
-        max_return = max_return.max(result.max_return);
-        max_loss = max_loss.min(result.max_loss);
-        total_hold_days += result.avg_hold_days * result.total_trades as f32;
-        
-        // 记录止损和止损失败情况
-        log::info!("回测日期 {}: 止损率={:.2}%, 止损失败率={:.2}%", 
-            forecast_idx, result.stop_loss_rate * 100.0, result.stop_loss_fail_rate * 100.0);
-    }
-    
-    // 计算平均值
-    let avg_return = if total_trades > 0 {
-        total_return / total_trades as f32
-    } else {
-        0.0
-    };
-    
-    let avg_hold_days = if total_trades > 0 {
-        total_hold_days / total_trades as f32
-    } else {
-        target.in_days() as f32 / 2.0 // 默认值
-    };
-    
-    let win_rate = if total_trades > 0 {
-        winning_trades as f32 / total_trades as f32
-    } else {
-        0.0
-    };
-    
-    // 计算止损率和止损失败率
-    let stop_loss_rate = if total_trades > 0 {
-        stop_loss_trades as f32 / total_trades as f32
-    } else {
-        0.0
-    };
-    
-    let stop_loss_fail_rate = if total_trades > 0 {
-        stop_loss_fail_trades as f32 / total_trades as f32
-    } else {
-        0.0
-    };
-    
-    BacktestResult {
-        total_trades,
-        winning_trades,
-        losing_trades,
-        stop_loss_trades,
-        stop_loss_fail_trades,
-        win_rate,
-        stop_loss_rate,
-        stop_loss_fail_rate,
-        avg_return,
-        max_return,
-        max_loss,
-        avg_hold_days,
-    }
-}
-
+/// 导出结果到JSON
 fn export_results_to_json(
     scorecard: &Scorecard,
     results: &[Vec<Vec<f32>>],
     best_combination: (usize, usize, usize, f32)
 ) -> Result<()> {
-    log::info!("导出结果到JSON...");
+    info!("导出结果到JSON...");
     
     // 创建数据目录
     let data_dir = Path::new("docs/data");
     fs::create_dir_all(data_dir)?;
-    
-    // 初始化数据提供者
-    let mut provider = StockDataProvider::new()?;
     
     // 准备导出数据
     let mut export_data = ExportData {
@@ -261,7 +160,8 @@ fn export_results_to_json(
                     
                     // 生成推荐股票
                     let recommendations = generate_recommendations(
-                        &mut provider, 
+                        &scorecard.engine, 
+                        &scorecard.stock_data,
                         selector.as_ref(), 
                         signal.as_ref(), 
                         target.as_ref()
@@ -284,11 +184,13 @@ fn export_results_to_json(
                         performance: StrategyPerformance {
                             success_rate: score,
                             stop_loss_rate: backtest_result.stop_loss_rate,
-                            stop_loss_fail_rate: backtest_result.stop_loss_fail_rate,  // 添加止损失败率
+                            stop_loss_fail_rate: backtest_result.stop_loss_fail_rate,
                             avg_return: backtest_result.avg_return,
                             max_return: backtest_result.max_return,
                             max_loss: backtest_result.max_loss,
                             avg_hold_days: backtest_result.avg_hold_days,
+                            sharpe_ratio: backtest_result.sharpe_ratio,
+                            max_drawdown: backtest_result.max_drawdown,
                         },
                         recommendations,
                     };
@@ -344,40 +246,24 @@ fn export_results_to_json(
     let mut file = File::create(file_path)?;
     file.write_all(json.as_bytes())?;
     
-    log::info!("结果已导出到 docs/data/stocks.json");
+    info!("结果已导出到 docs/data/stocks.json");
     
     Ok(())
 }
 
+/// 生成推荐股票
 fn generate_recommendations(
-    provider: &mut StockDataProvider,
-    selector: &dyn StockSelector,
-    signal: &dyn BuySignalGenerator,
-    target: &dyn Target
+    _engine: &BacktestEngine,
+    stock_data: &[(String, Vec<egostrategy_datahub::models::stock::DailyData>)],
+    selector: &dyn strategy_lab::strategies::StockSelector,
+    signal: &dyn strategy_lab::signals::BuySignalGenerator,
+    target: &dyn strategy_lab::targets::Target
 ) -> Result<Vec<StockRecommendation>> {
-    log::info!("为策略 {} + {} 生成推荐股票...", selector.name(), signal.name());
-    
-    // 获取所有股票
-    let all_stocks = provider.get_all_stocks();
-    
-    // 过滤股票 - 排除科创板、创业板和高价股
-    let filtered_stocks = provider.filter_stocks(all_stocks);
-    
-    // 加载股票数据
-    let mut stock_data = Vec::new();
-    for symbol in filtered_stocks.iter().take(100) {
-        if let Some(bars) = provider.get_daily_bars(symbol) {
-            if bars.len() > 100 {
-                stock_data.push((symbol.clone(), bars.clone()));
-            }
-        }
-    }
-    
-    log::info!("加载了 {} 只股票的数据用于生成推荐", stock_data.len());
+    info!("为策略 {} + {} 生成推荐股票...", selector.name(), signal.name());
     
     // 运行选股策略
     let forecast_idx = 0; // 使用最新数据
-    let candidates = selector.run(&stock_data, forecast_idx);
+    let candidates = selector.run(stock_data, forecast_idx);
     
     // 生成买入信号
     let signals = signal.generate_signals(candidates, forecast_idx);
@@ -390,7 +276,7 @@ fn generate_recommendations(
         }
         
         // 获取股票名称
-        let name = provider.get_stock_name(&symbol).unwrap_or_else(|| symbol.clone());
+        let name = format!("股票{}", symbol); // 简化处理
         
         // 计算目标价和止损价
         let target_price = buy_price * (1.0 + target.target_return());
@@ -421,7 +307,113 @@ fn generate_recommendations(
         recommendations.truncate(5);
     }
     
-    log::info!("生成了 {} 只推荐股票", recommendations.len());
+    info!("生成了 {} 只推荐股票", recommendations.len());
     
     Ok(recommendations)
+}
+
+/// 运行详细回测以获取性能指标
+fn run_detailed_backtest(
+    engine: &BacktestEngine,
+    selector: &dyn strategy_lab::strategies::StockSelector,
+    signal: &dyn strategy_lab::signals::BuySignalGenerator,
+    target: &dyn strategy_lab::targets::Target,
+    back_days: usize
+) -> strategy_lab::backtest::BacktestResult {
+    info!("运行详细回测以获取性能指标...");
+    
+    let mut total_trades = 0;
+    let mut winning_trades = 0;
+    let mut losing_trades = 0;
+    let mut stop_loss_trades = 0;       // 添加止损交易计数
+    let mut stop_loss_fail_trades = 0;  // 添加止损失败交易计数
+    let mut total_return = 0.0;
+    let mut max_return: f32 = -1.0;
+    let mut max_loss: f32 = 0.0;
+    let mut total_hold_days = 0.0;
+    let mut all_returns = Vec::new();
+    
+    // 对每个回测日期运行回测
+    for forecast_idx in 1..=back_days {
+        let result = engine.run_detailed_test(selector, signal, target, forecast_idx);
+        
+        // 累加结果
+        total_trades += result.total_trades;
+        winning_trades += result.winning_trades;
+        losing_trades += result.losing_trades;
+        stop_loss_trades += result.stop_loss_trades;         // 累加止损交易数
+        stop_loss_fail_trades += result.stop_loss_fail_trades; // 累加止损失败交易数
+        total_return += result.avg_return * result.total_trades as f32;
+        max_return = max_return.max(result.max_return);
+        max_loss = max_loss.min(result.max_loss);
+        total_hold_days += result.avg_hold_days * result.total_trades as f32;
+        
+        // 收集所有交易的收益率用于计算高级指标
+        if let Some(details) = &result.trade_details {
+            for detail in details {
+                all_returns.push(detail.return_pct);
+            }
+        }
+        
+        // 记录止损和止损失败情况
+        info!("回测日期 {}: 止损率={:.2}%, 止损失败率={:.2}%", 
+            forecast_idx, result.stop_loss_rate * 100.0, result.stop_loss_fail_rate * 100.0);
+    }
+    
+    // 计算平均值
+    let avg_return = if total_trades > 0 {
+        total_return / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    let avg_hold_days = if total_trades > 0 {
+        total_hold_days / total_trades as f32
+    } else {
+        target.in_days() as f32 / 2.0 // 默认值
+    };
+    
+    let win_rate = if total_trades > 0 {
+        winning_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    // 计算止损率和止损失败率
+    let stop_loss_rate = if total_trades > 0 {
+        stop_loss_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    let stop_loss_fail_rate = if total_trades > 0 {
+        stop_loss_fail_trades as f32 / total_trades as f32
+    } else {
+        0.0
+    };
+    
+    // 创建结果对象
+    let mut result = strategy_lab::backtest::BacktestResult {
+        total_trades,
+        winning_trades,
+        losing_trades,
+        stop_loss_trades,
+        stop_loss_fail_trades,
+        win_rate,
+        stop_loss_rate,
+        stop_loss_fail_rate,
+        avg_return,
+        max_return,
+        max_loss,
+        avg_hold_days,
+        sharpe_ratio: 0.0,
+        max_drawdown: 0.0,
+        profit_factor: 0.0,
+        trade_details: None,
+    };
+    
+    // 计算高级指标
+    result.calculate_advanced_metrics(&all_returns);
+    
+    result
 }

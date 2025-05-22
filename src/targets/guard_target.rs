@@ -1,67 +1,85 @@
+use crate::targets::Target;
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
-use super::Target;
 
-/// 止损目标
+/// 止损目标 - 在指定天数内不触发止损
+#[derive(Debug, Clone)]
 pub struct GuardTarget {
-    pub stop_loss: f32,      // 止损比例
-    pub in_days: usize,      // 目标天数
-}
-
-impl GuardTarget {
-    /// 创建新的止损目标
-    pub fn new(stop_loss: f32, in_days: usize) -> Self {
-        Self {
-            stop_loss,
-            in_days,
-        }
-    }
+    pub stop_loss: f32,
+    pub in_days: usize,
 }
 
 impl Target for GuardTarget {
     fn name(&self) -> String {
-        format!("{}天内不触发{}%止损", self.in_days, self.stop_loss * 100.0)
-    }
-    
-    fn in_days(&self) -> usize {
-        self.in_days
+        format!("止损目标 {}% / {}天", self.stop_loss * 100.0, self.in_days)
     }
     
     fn target_return(&self) -> f32 {
-        0.0 // 没有目标收益率
+        0.0 // 止损目标不关注收益率
     }
     
     fn stop_loss(&self) -> f32 {
         self.stop_loss
     }
     
-    fn evaluate(&self, data: &[DailyBar], buy_price: f32, forecast_idx: usize) -> bool {
-        if buy_price <= 0.0 {
-            log::debug!("评估失败: 买入价格无效 ({})", buy_price);
-            return false;
-        }
+    fn in_days(&self) -> usize {
+        self.in_days
+    }
+    
+    fn run(&self, signals: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) -> f32 {
+        let mut total_trades = signals.len();
+        let mut winning_trades = 0;
         
-        // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
-        // 我们需要检查从forecast_idx+1到forecast_idx+in_days的数据
-        if data.len() <= forecast_idx + self.in_days {
-            log::debug!("评估失败: 数据不足 (需要 {} 天, 实际 {} 天)", 
-                forecast_idx + self.in_days, data.len());
-            return false;
-        }
-        
-        log::debug!("评估区间: 从idx={}到idx={}, 买入价={:.2}", 
-            forecast_idx + 1, forecast_idx + self.in_days, buy_price);
-        
-        // 检查区间内是否触发止损
-        for i in (forecast_idx + 1)..=(forecast_idx + self.in_days) {
-            let low_return = (data[i].low - buy_price) / buy_price;
-            if low_return <= -self.stop_loss {
-                log::debug!("止损触发: 第{}天亏损{:.2}% (止损{:.2}%)", 
-                    i - forecast_idx, -low_return * 100.0, self.stop_loss * 100.0);
-                return false;
+        for (_, data, buy_price) in signals {
+            if buy_price <= 0.0 {
+                total_trades -= 1;
+                continue;
+            }
+            
+            // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
+            // 我们需要检查从forecast_idx+1到forecast_idx+in_days的数据
+            if data.len() <= forecast_idx + self.in_days {
+                total_trades -= 1;
+                continue;
+            }
+            
+            // 计算止损价
+            let stop_loss_price = buy_price * (1.0 - self.stop_loss);
+            
+            // 检查是否触发止损
+            let mut is_win = true;
+            
+            // 检查第一个交易日是否直接低于止损价（止损失败）
+            if data[forecast_idx + 1].open < stop_loss_price {
+                // 止损失败，直接计为失败
+                is_win = false;
+            } else {
+                // 正常交易流程
+                for i in (forecast_idx + 1)..=(forecast_idx + self.in_days) {
+                    // 检查是否跳空低开导致止损失败
+                    if i > forecast_idx + 1 && data[i].open < stop_loss_price {
+                        // 止损失败，计为失败
+                        is_win = false;
+                        break;
+                    }
+                    
+                    // 检查是否触发正常止损
+                    if data[i].low <= stop_loss_price {
+                        // 触发止损，计为失败
+                        is_win = false;
+                        break;
+                    }
+                }
+            }
+            
+            if is_win {
+                winning_trades += 1;
             }
         }
         
-        log::debug!("目标达成: {}天内未触发{:.2}%止损", self.in_days, self.stop_loss * 100.0);
-        true
+        if total_trades > 0 {
+            winning_trades as f32 / total_trades as f32
+        } else {
+            0.0
+        }
     }
 }

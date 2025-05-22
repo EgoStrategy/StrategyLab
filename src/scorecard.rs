@@ -2,6 +2,7 @@ use crate::backtest::BacktestEngine;
 use crate::strategies::StockSelector;
 use crate::signals::BuySignalGenerator;
 use crate::targets::Target;
+use egostrategy_datahub::models::stock::DailyData as DailyBar;
 use log::info;
 use rayon::prelude::*;
 
@@ -9,6 +10,7 @@ use rayon::prelude::*;
 pub struct Scorecard {
     pub back_days: usize,
     pub engine: BacktestEngine,
+    pub stock_data: Vec<(String, Vec<DailyBar>)>,
     pub selectors: Vec<Box<dyn StockSelector>>,
     pub signals: Vec<Box<dyn BuySignalGenerator>>,
     pub targets: Vec<Box<dyn Target>>,
@@ -22,110 +24,115 @@ impl Scorecard {
         signals: Vec<Box<dyn BuySignalGenerator>>,
         targets: Vec<Box<dyn Target>>,
     ) -> anyhow::Result<Self> {
-        let mut engine = BacktestEngine::new()?;
-        engine.load_data()?;
+        info!("创建评分卡...");
+        let mut engine = BacktestEngine::new(true)?;
         
+        // 加载股票数据
+        engine.load_data()?;
+        let stock_data = engine.get_stock_data();
+
         Ok(Self {
             back_days,
             engine,
+            stock_data,
             selectors,
             signals,
             targets,
         })
     }
     
-    /// 运行评分卡，返回所有组合的评分
+    /// 运行评分卡
     pub fn run(&self) -> Vec<Vec<Vec<f32>>> {
-        info!("Running scorecard with {} selectors, {} signals, and {} targets", 
-            self.selectors.len(), self.signals.len(), self.targets.len());
+        info!("运行评分卡...");
+        
+        // 创建结果矩阵: targets x selectors x signals
+        let mut results = vec![vec![vec![0.0; self.signals.len()]; self.selectors.len()]; self.targets.len()];
+        
+        // 使用并行处理加速评分卡运行
+        let combinations: Vec<(usize, usize, usize)> = (0..self.targets.len())
+            .flat_map(|t| (0..self.selectors.len())
+                .flat_map(move |s| (0..self.signals.len())
+                    .map(move |sig| (t, s, sig))))
+            .collect();
             
-        // 返回结构: [target][selector][signal]
-        self.targets.par_iter().map(|target| {
-            self.selectors.par_iter().map(|selector| {
-                self.signals.par_iter().map(|signal| {
-                    self.engine.run_backtest(
-                        selector.as_ref(),
-                        signal.as_ref(),
-                        target.as_ref(),
-                        self.back_days
-                    )
-                }).collect()
-            }).collect()
-        }).collect()
+        let scores: Vec<(usize, usize, usize, f32)> = combinations.par_iter()
+            .map(|(t, s, sig)| {
+                let target = &self.targets[*t];
+                let selector = &self.selectors[*s];
+                let signal = &self.signals[*sig];
+                
+                info!("评估组合: 策略={}, 信号={}, 目标={}",
+                    selector.name(), signal.name(), target.name());
+                    
+                let score = self.engine.run_backtest(
+                    selector.as_ref(),
+                    signal.as_ref(),
+                    target.as_ref(),
+                    self.back_days,
+                );
+                
+                (*t, *s, *sig, score)
+            })
+            .collect();
+            
+        // 填充结果矩阵
+        for (t, s, sig, score) in scores {
+            results[t][s][sig] = score;
+        }
+        
+        results
     }
     
-    /// 打印评分卡结果
+    /// 打印结果
     pub fn print_results(&self, results: &[Vec<Vec<f32>>]) {
-        println!("\n===== 策略评分卡结果 =====\n");
+        println!("评分卡结果:");
+        println!("===========================================================");
         
         for (t_idx, target_results) in results.iter().enumerate() {
-            println!("目标: {}", self.targets[t_idx].name());
-            println!("{:-<80}", "");
+            let target = &self.targets[t_idx];
+            println!("\n目标: {}", target.name());
             
-            // 打印表头
-            print!("{:<30}", "选股策略 \\ 买入信号");
-            for signal in &self.signals {
-                print!("{:<15}", signal.name());
-            }
-            println!();
-            
-            // 打印结果
             for (s_idx, selector_results) in target_results.iter().enumerate() {
-                print!("{:<30}", self.selectors[s_idx].name());
-                for &score in selector_results {
-                    print!("{:<15.2}%", score * 100.0);
+                let selector = &self.selectors[s_idx];
+                println!("  策略: {}", selector.name());
+                
+                for (sig_idx, &score) in selector_results.iter().enumerate() {
+                    let signal = &self.signals[sig_idx];
+                    println!("    信号: {}, 得分: {:.2}%", signal.name(), score * 100.0);
                 }
-                println!();
             }
-            println!("\n");
         }
+        
+        println!("===========================================================");
     }
     
     /// 找出最佳组合
     pub fn find_best_combination(&self, results: &[Vec<Vec<f32>>]) -> (usize, usize, usize, f32) {
-        let mut best_score = 0.0;
-        let mut best_target = 0;
-        let mut best_selector = 0;
-        let mut best_signal = 0;
+        let mut best = (0, 0, 0, 0.0);
         
         for (t_idx, target_results) in results.iter().enumerate() {
             for (s_idx, selector_results) in target_results.iter().enumerate() {
                 for (sig_idx, &score) in selector_results.iter().enumerate() {
-                    if score > best_score {
-                        best_score = score;
-                        best_target = t_idx;
-                        best_selector = s_idx;
-                        best_signal = sig_idx;
+                    if score > best.3 {
+                        best = (t_idx, s_idx, sig_idx, score);
                     }
                 }
             }
         }
         
-        (best_target, best_selector, best_signal, best_score)
+        best
     }
     
     /// 打印最佳组合
     pub fn print_best_combination(&self, results: &[Vec<Vec<f32>>]) {
-        let (best_target, best_selector, best_signal, best_score) = self.find_best_combination(results);
+        let (t_idx, s_idx, sig_idx, score) = self.find_best_combination(results);
         
-        println!("\n===== 最佳策略组合 =====\n");
-        println!("目标: {}", self.targets[best_target].name());
-        println!("选股策略: {}", self.selectors[best_selector].name());
-        println!("买入信号: {}", self.signals[best_signal].name());
-        println!("成功率: {:.2}%", best_score * 100.0);
-        
-        // 运行详细回测以获取止损率和止损失败率
-        let result = self.engine.run_detailed_test(
-            &*self.selectors[best_selector],
-            &*self.signals[best_signal],
-            &*self.targets[best_target],
-            1 // 使用最近的一天
-        );
-        
-        println!("止损率: {:.2}%", result.stop_loss_rate * 100.0);
-        println!("止损失败率: {:.2}%", result.stop_loss_fail_rate * 100.0);
-        println!("止损交易数: {}", result.stop_loss_trades);
-        println!("止损失败交易数: {}", result.stop_loss_fail_trades);
-        println!("总交易数: {}", result.total_trades);
+        println!("\n最佳组合:");
+        println!("===========================================================");
+        println!("策略: {}", self.selectors[s_idx].name());
+        println!("信号: {}", self.signals[sig_idx].name());
+        println!("目标: {}", self.targets[t_idx].name());
+        println!("得分: {:.2}%", score * 100.0);
+        println!("===========================================================");
     }
 }
