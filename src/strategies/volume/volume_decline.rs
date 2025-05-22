@@ -10,6 +10,7 @@ pub struct VolumeDecliningSelector {
     pub min_volume_decline_ratio: f32,
     pub price_period: usize,
     pub check_support_level: bool,
+    pub max_support_ratio: f32,
 }
 
 impl StockSelector for VolumeDecliningSelector {
@@ -63,7 +64,7 @@ impl VolumeDecliningSelector {
                     return true;
                 }
             } else {
-                consecutive_decline = 0;
+                break;
             }
         }
         
@@ -91,6 +92,6 @@ impl VolumeDecliningSelector {
         let price_ratio = (current_price - min_price) / current_price;
         
         // 如果当前价格与支撑位相差不超过5%，则认为在支撑位附近
-        price_ratio <= 0.05
+        price_ratio <= self.max_support_ratio
     }
 }

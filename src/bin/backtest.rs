@@ -122,6 +122,7 @@ fn run_single_backtest(
             min_volume_decline_ratio: 0.1,
             price_period: 20,
             check_support_level: false,
+            max_support_ratio: 0.06
         }) as Box<dyn strategy_lab::strategies::StockSelector>,
         "breakthrough" => Box::new(BreakthroughPullbackSelector {
             top_n: 10,
@@ -189,6 +190,7 @@ fn run_full_scorecard(
             min_volume_decline_ratio: 0.1,
             price_period: 20,
             check_support_level: false,
+            max_support_ratio: 0.06
         }),
         Box::new(BreakthroughPullbackSelector {
             top_n: 10,
@@ -388,8 +390,10 @@ fn run_detailed_backtest_for_export(
         winning_trades,
         losing_trades,
         stop_loss_trades,
+        stop_loss_fail_trades: 0,
         win_rate,
         stop_loss_rate,
+        stop_loss_fail_rate: 0.0,
         avg_return,
         max_return,
         max_loss,
@@ -397,6 +401,7 @@ fn run_detailed_backtest_for_export(
         sharpe_ratio: 0.0,
         max_drawdown: 0.0,
         profit_factor: 0.0,
+        trade_details: None,
     };
     
     result

@@ -35,6 +35,7 @@ struct StockRecommendation {
 struct StrategyPerformance {
     success_rate: f32,
     stop_loss_rate: f32,
+    stop_loss_fail_rate: f32,
     avg_return: f32,
     max_return: f32,
     max_loss: f32,
@@ -76,7 +77,8 @@ fn main() -> Result<()> {
             min_consecutive_decline_days: 3,
             min_volume_decline_ratio: 0.1,
             price_period: 20,
-            check_support_level: false,
+            check_support_level: true,
+            max_support_ratio: 0.06
         }),
         Box::new(BreakthroughPullbackSelector {
             top_n: 10,
@@ -182,6 +184,7 @@ fn export_results_to_json(
                         performance: StrategyPerformance {
                             success_rate: score,
                             stop_loss_rate: backtest_result.stop_loss_rate,
+                            stop_loss_fail_rate: backtest_result.stop_loss_fail_rate, // 添加这个字段
                             avg_return: backtest_result.avg_return,
                             max_return: backtest_result.max_return,
                             max_loss: backtest_result.max_loss,
@@ -377,8 +380,10 @@ fn run_detailed_backtest(
         winning_trades,
         losing_trades,
         stop_loss_trades,
+        stop_loss_fail_trades: 0, // 添加这个字段
         win_rate,
         stop_loss_rate,
+        stop_loss_fail_rate: 0.0, // 添加这个字段
         avg_return,
         max_return,
         max_loss,
@@ -386,6 +391,7 @@ fn run_detailed_backtest(
         sharpe_ratio: 0.0,
         max_drawdown: 0.0,
         profit_factor: 0.0,
+        trade_details: None, // 添加这个字段
     };
     
     result

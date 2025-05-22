@@ -187,8 +187,10 @@ impl BacktestEngine {
             winning_trades,
             losing_trades,
             stop_loss_trades,
+            stop_loss_fail_trades: 0,
             win_rate,
             stop_loss_rate,
+            stop_loss_fail_rate: 0.0,
             avg_return,
             max_return,
             max_loss,
@@ -196,6 +198,7 @@ impl BacktestEngine {
             sharpe_ratio: 0.0,
             max_drawdown: 0.0,
             profit_factor: 0.0,
+            trade_details: None,
         };
         
         // 计算高级指标
