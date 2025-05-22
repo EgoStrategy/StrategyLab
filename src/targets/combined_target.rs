@@ -76,4 +76,20 @@ impl Target for CombinedTarget {
         
         weighted_score
     }
+    
+    fn evaluate_signals(&self, signals: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) 
+        -> (usize, usize, usize, usize, Vec<f32>, Vec<f32>) {
+        // 使用第一个目标的评估结果作为基础
+        if self.targets.is_empty() {
+            return (0, 0, 0, 0, Vec::new(), Vec::new());
+        }
+        
+        // 克隆信号以便每个目标都能独立评估
+        let cloned_signals = signals.iter()
+            .map(|(s, d, p)| (s.clone(), d.clone(), *p))
+            .collect();
+            
+        // 使用第一个目标的评估结果
+        self.targets[0].evaluate_signals(cloned_signals, forecast_idx)
+    }
 }

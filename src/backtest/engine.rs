@@ -2,7 +2,7 @@ use crate::stock::data_provider::StockDataProvider;
 use crate::strategies::StockSelector;
 use crate::signals::BuySignalGenerator;
 use crate::targets::Target;
-use crate::backtest::result::{BacktestResult, TradeDetail, ExitReason};
+use crate::backtest::result::BacktestResult;
 use egostrategy_datahub::models::stock::DailyData as DailyBar;
 use std::sync::Arc;
 use rayon::prelude::*;
@@ -113,7 +113,9 @@ impl BacktestEngine {
         target: &dyn Target,
         back_days: usize,
     ) -> f32 {
-        let range: Vec<usize> = (1..=back_days).collect();
+        // 修改范围，从target.in_days()+1开始，确保有足够的未来数据进行评估
+        // +1是因为T+1交易制度，需要额外一天用于买入
+        let range: Vec<usize> = (target.in_days()+1..target.in_days()+1+back_days).collect();
         
         let total_score: f32 = range.iter()
             .map(|&idx| {
@@ -147,193 +149,11 @@ impl BacktestEngine {
         // 2. 生成买入信号
         let signals = signal_generator.generate_signals(candidates, forecast_idx);
         
-        // 3. 评估信号
-        self.evaluate_signals(signals, target, forecast_idx)
-    }
-    
-    /// 评估信号
-    fn evaluate_signals(
-        &self,
-        signals: Vec<(String, Vec<DailyBar>, f32)>,
-        target: &dyn Target,
-        forecast_idx: usize,
-    ) -> BacktestResult {
-        let mut total_trades = signals.len();
-        let mut winning_trades = 0;
-        let mut losing_trades = 0;
-        let mut stop_loss_trades = 0;       // 触发止损的交易数
-        let mut stop_loss_fail_trades = 0;  // 止损失败的交易数
-        let mut returns = Vec::new();
-        let mut hold_days = Vec::new();
-        let mut trade_details = if self.collect_trade_details {
-            Some(Vec::new())
-        } else {
-            None
-        };
+        // 3. 评估信号 - 使用target的evaluate_signals方法
+        let (total_trades, winning_trades, losing_trades, stop_loss_trades, returns, hold_days) = 
+            target.evaluate_signals(signals, forecast_idx);
         
-        for (symbol, data, buy_price) in signals.iter() {
-            if buy_price <= &0.0 {
-                total_trades -= 1;
-                continue;
-            }
-            
-            // 对于倒序数据，forecast_idx表示从最新数据往后数的天数
-            // 我们需要检查从forecast_idx+1到forecast_idx+in_days的数据
-            if data.len() <= forecast_idx + target.in_days() {
-                total_trades -= 1;
-                continue;
-            }
-            
-            // 计算最大收益和止损
-            let mut max_return = -1.0;
-            let mut exit_day = 0;
-            let mut is_win = false;
-            let mut is_stop_loss = false;      // 是否触发止损
-            let mut is_stop_loss_fail = false; // 是否止损失败
-            let mut exit_price = 0.0;
-            let mut exit_reason = ExitReason::TimeExpired;
-            
-            // 计算止损价
-            let stop_loss_price = buy_price * (1.0 - target.stop_loss());
-            
-            // 检查第一个交易日是否直接低于止损价（止损失败）
-            if data[forecast_idx + 1].open < stop_loss_price {
-                debug!("首日止损失败: 开盘价={:.2}, 止损价={:.2}, 实际损失={:.2}%", 
-                    data[forecast_idx + 1].open, stop_loss_price, 
-                    (data[forecast_idx + 1].open - buy_price) / buy_price * 100.0);
-                is_stop_loss_fail = true;
-                max_return = (data[forecast_idx + 1].open - buy_price) / buy_price; // 实际损失
-                exit_day = 1;
-                exit_price = data[forecast_idx + 1].open;
-                exit_reason = ExitReason::StopLossFailed;
-            } else {
-                // 正常交易流程
-                for i in (forecast_idx + 1)..=(forecast_idx + target.in_days()) {
-                    // 检查是否达到目标收益
-                    let current_return = (data[i].close - buy_price) / buy_price;
-                    if current_return >= target.target_return() {
-                        max_return = current_return;
-                        exit_day = i - forecast_idx;
-                        exit_price = data[i].close;
-                        is_win = true;
-                        exit_reason = ExitReason::TargetReached;
-                        break;
-                    }
-                    
-                    // 检查是否跳空低开导致止损失败
-                    if i > forecast_idx + 1 && data[i].open < stop_loss_price {
-                        // 开盘价已低于止损价，这是止损失败
-                        debug!("止损失败: 股票跳空低开, 开盘价={:.2}, 止损价={:.2}, 实际损失={:.2}%", 
-                            data[i].open, stop_loss_price, (data[i].open - buy_price) / buy_price * 100.0);
-                        is_stop_loss_fail = true;
-                        max_return = (data[i].open - buy_price) / buy_price; // 实际损失
-                        exit_day = i - forecast_idx;
-                        exit_price = data[i].open;
-                        exit_reason = ExitReason::StopLossFailed;
-                        break;
-                    }
-                    
-                    // 检查是否触发正常止损
-                    if data[i].low <= stop_loss_price && data[i].open >= stop_loss_price {
-                        // 当日最低价触及止损价，但开盘价高于止损价，这是正常止损
-                        debug!("正常止损: 触发止损价, 最低价={:.2}, 止损价={:.2}, 止损比例={:.2}%", 
-                            data[i].low, stop_loss_price, target.stop_loss() * 100.0);
-                        is_stop_loss = true;
-                        max_return = -target.stop_loss(); // 按照预设止损比例计算
-                        exit_day = i - forecast_idx;
-                        exit_price = stop_loss_price;
-                        exit_reason = ExitReason::StopLoss;
-                        break;
-                    }
-                    
-                    // 更新最大收益
-                    if current_return > max_return {
-                        max_return = current_return;
-                    }
-                }
-                
-                // 如果没有提前退出，使用最后一天的收盘价计算收益
-                if exit_day == 0 {
-                    let last_idx = forecast_idx + target.in_days();
-                    let last_return = (data[last_idx].close - buy_price) / buy_price;
-                    max_return = last_return;
-                    exit_day = target.in_days();
-                    exit_price = data[last_idx].close;
-                    exit_reason = ExitReason::TimeExpired;
-                    
-                    // 对于一天内目标的特殊处理
-                    if target.in_days() == 1 {
-                        // 检查当天是否触发止损
-                        let day_idx = forecast_idx + 1;
-                        if data[day_idx].low <= stop_loss_price {
-                            // 当天触及止损价
-                            if data[day_idx].open < stop_loss_price {
-                                // 开盘就低于止损价，这是止损失败
-                                debug!("一天内目标止损失败: 开盘价={:.2}, 止损价={:.2}", 
-                                    data[day_idx].open, stop_loss_price);
-                                is_stop_loss_fail = true;
-                                max_return = (data[day_idx].open - buy_price) / buy_price;
-                                exit_price = data[day_idx].open;
-                                exit_reason = ExitReason::StopLossFailed;
-                            } else {
-                                // 开盘价高于止损价，这是正常止损
-                                debug!("一天内目标正常止损: 最低价={:.2}, 止损价={:.2}", 
-                                    data[day_idx].low, stop_loss_price);
-                                is_stop_loss = true;
-                                max_return = -target.stop_loss();
-                                exit_price = stop_loss_price;
-                                exit_reason = ExitReason::StopLoss;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // 统计结果
-            if is_win {
-                winning_trades += 1;
-            } else {
-                losing_trades += 1;
-                if is_stop_loss {
-                    stop_loss_trades += 1;
-                }
-                if is_stop_loss_fail {
-                    stop_loss_fail_trades += 1;
-                }
-            }
-            
-            returns.push(max_return);
-            hold_days.push(exit_day as f32);
-            
-            // 收集交易详情
-            if let Some(details) = &mut trade_details {
-                // 计算日期
-                let entry_date = if data.len() > forecast_idx {
-                    data[forecast_idx].date.to_string()
-                } else {
-                    "Unknown".to_string()
-                };
-                
-                let exit_date = if data.len() > forecast_idx + exit_day {
-                    data[forecast_idx + exit_day].date.to_string()
-                } else {
-                    "Unknown".to_string()
-                };
-                
-                details.push(TradeDetail {
-                    symbol: symbol.clone(),
-                    entry_date,
-                    entry_price: *buy_price,
-                    exit_date,
-                    exit_price,
-                    return_pct: max_return,
-                    hold_days: exit_day,
-                    exit_reason,
-                });
-            }
-        }
-        
-        // 计算统计指标
+        // 4. 计算统计指标
         let win_rate = if total_trades > 0 {
             winning_trades as f32 / total_trades as f32
         } else {
@@ -343,13 +163,6 @@ impl BacktestEngine {
         // 计算止损率
         let stop_loss_rate = if total_trades > 0 {
             stop_loss_trades as f32 / total_trades as f32
-        } else {
-            0.0
-        };
-        
-        // 计算止损失败率
-        let stop_loss_fail_rate = if total_trades > 0 {
-            stop_loss_fail_trades as f32 / total_trades as f32
         } else {
             0.0
         };
@@ -374,10 +187,8 @@ impl BacktestEngine {
             winning_trades,
             losing_trades,
             stop_loss_trades,
-            stop_loss_fail_trades,
             win_rate,
             stop_loss_rate,
-            stop_loss_fail_rate,
             avg_return,
             max_return,
             max_loss,
@@ -385,7 +196,6 @@ impl BacktestEngine {
             sharpe_ratio: 0.0,
             max_drawdown: 0.0,
             profit_factor: 0.0,
-            trade_details,
         };
         
         // 计算高级指标

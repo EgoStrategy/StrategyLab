@@ -18,6 +18,10 @@ pub trait Target: Send + Sync {
     /// 获取目标天数
     fn in_days(&self) -> usize;
     
-    /// 运行目标评估
+    /// 运行目标评估，返回成功率
     fn run(&self, signals: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) -> f32;
+    
+    /// 详细评估信号，返回交易详情
+    fn evaluate_signals(&self, signals: Vec<(String, Vec<DailyBar>, f32)>, forecast_idx: usize) 
+        -> (usize, usize, usize, usize, Vec<f32>, Vec<f32>);
 }

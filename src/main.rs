@@ -35,7 +35,6 @@ struct StockRecommendation {
 struct StrategyPerformance {
     success_rate: f32,
     stop_loss_rate: f32,
-    stop_loss_fail_rate: f32,
     avg_return: f32,
     max_return: f32,
     max_loss: f32,
@@ -160,7 +159,6 @@ fn export_results_to_json(
                     
                     // 生成推荐股票
                     let recommendations = generate_recommendations(
-                        &scorecard.engine, 
                         &scorecard.stock_data,
                         selector.as_ref(), 
                         signal.as_ref(), 
@@ -184,7 +182,6 @@ fn export_results_to_json(
                         performance: StrategyPerformance {
                             success_rate: score,
                             stop_loss_rate: backtest_result.stop_loss_rate,
-                            stop_loss_fail_rate: backtest_result.stop_loss_fail_rate,
                             avg_return: backtest_result.avg_return,
                             max_return: backtest_result.max_return,
                             max_loss: backtest_result.max_loss,
@@ -253,7 +250,6 @@ fn export_results_to_json(
 
 /// 生成推荐股票
 fn generate_recommendations(
-    _engine: &BacktestEngine,
     stock_data: &[(String, Vec<egostrategy_datahub::models::stock::DailyData>)],
     selector: &dyn strategy_lab::strategies::StockSelector,
     signal: &dyn strategy_lab::signals::BuySignalGenerator,
@@ -326,12 +322,10 @@ fn run_detailed_backtest(
     let mut winning_trades = 0;
     let mut losing_trades = 0;
     let mut stop_loss_trades = 0;       // 添加止损交易计数
-    let mut stop_loss_fail_trades = 0;  // 添加止损失败交易计数
     let mut total_return = 0.0;
     let mut max_return: f32 = -1.0;
     let mut max_loss: f32 = 0.0;
     let mut total_hold_days = 0.0;
-    let mut all_returns = Vec::new();
     
     // 对每个回测日期运行回测
     for forecast_idx in 1..=back_days {
@@ -342,22 +336,13 @@ fn run_detailed_backtest(
         winning_trades += result.winning_trades;
         losing_trades += result.losing_trades;
         stop_loss_trades += result.stop_loss_trades;         // 累加止损交易数
-        stop_loss_fail_trades += result.stop_loss_fail_trades; // 累加止损失败交易数
         total_return += result.avg_return * result.total_trades as f32;
         max_return = max_return.max(result.max_return);
         max_loss = max_loss.min(result.max_loss);
         total_hold_days += result.avg_hold_days * result.total_trades as f32;
         
-        // 收集所有交易的收益率用于计算高级指标
-        if let Some(details) = &result.trade_details {
-            for detail in details {
-                all_returns.push(detail.return_pct);
-            }
-        }
-        
         // 记录止损和止损失败情况
-        info!("回测日期 {}: 止损率={:.2}%, 止损失败率={:.2}%", 
-            forecast_idx, result.stop_loss_rate * 100.0, result.stop_loss_fail_rate * 100.0);
+        info!("回测日期 {}: 止损率={:.2}%", forecast_idx, result.stop_loss_rate * 100.0);
     }
     
     // 计算平均值
@@ -386,22 +371,14 @@ fn run_detailed_backtest(
         0.0
     };
     
-    let stop_loss_fail_rate = if total_trades > 0 {
-        stop_loss_fail_trades as f32 / total_trades as f32
-    } else {
-        0.0
-    };
-    
     // 创建结果对象
-    let mut result = strategy_lab::backtest::BacktestResult {
+    let result = strategy_lab::backtest::BacktestResult {
         total_trades,
         winning_trades,
         losing_trades,
         stop_loss_trades,
-        stop_loss_fail_trades,
         win_rate,
         stop_loss_rate,
-        stop_loss_fail_rate,
         avg_return,
         max_return,
         max_loss,
@@ -409,11 +386,7 @@ fn run_detailed_backtest(
         sharpe_ratio: 0.0,
         max_drawdown: 0.0,
         profit_factor: 0.0,
-        trade_details: None,
     };
-    
-    // 计算高级指标
-    result.calculate_advanced_metrics(&all_returns);
     
     result
 }

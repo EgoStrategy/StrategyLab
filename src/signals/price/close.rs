@@ -17,8 +17,9 @@ impl BuySignalGenerator for ClosePriceSignal {
     ) -> Vec<(String, Vec<DailyBar>, f32)> {
         candidates.into_iter()
             .map(|(symbol, data)| {
-                let buy_price = if data.len() > forecast_idx {
-                    data[forecast_idx].close
+                // 由于T+1交易制度，买入价格是forecast_idx-1天的收盘价
+                let buy_price = if forecast_idx > 0 && data.len() > forecast_idx - 1 {
+                    data[forecast_idx - 1].close
                 } else {
                     0.0
                 };
