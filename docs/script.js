@@ -87,7 +87,6 @@ function createStrategyCard(strategy, rank) {
             <thead>
                 <tr>
                     <th>代码</th>
-                    <th>名称</th>
                     ${isLimitPrice ? '<th>前收盘</th>' : ''}
                     <th>买入价</th>
                     <th>目标价</th>
@@ -102,7 +101,6 @@ function createStrategyCard(strategy, rank) {
         stocksHtml += `
             <tr>
                 <td>${stock.symbol}</td>
-                <td>${stock.name}</td>
                 ${isLimitPrice ? `<td>${stock.prev_close?.toFixed(2) || '-'}</td>` : ''}
                 <td>${stock.buy_price.toFixed(2)}</td>
                 <td>${stock.target_price.toFixed(2)}</td>
@@ -180,6 +178,21 @@ function createStrategyCard(strategy, rank) {
                     </div>
                 </div>
                 
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
+                            <span>夏普比率:</span>
+                            <span class="fw-bold">${performance.sharpe_ratio.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
+                            <span>最大回撤:</span>
+                            <span class="fw-bold">${(performance.max_drawdown * 100).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <h6 class="mt-4 mb-3">策略说明</h6>
                 <ul>
                     <li>选股: ${strategy.strategy_name}</li>
@@ -233,6 +246,8 @@ function updatePerformanceTable() {
             maxReturn: (perf.max_return * 100).toFixed(1) + '%',
             maxLoss: (perf.max_loss * 100).toFixed(1) + '%',
             avgHoldDays: perf.avg_hold_days.toFixed(1),
+            sharpeRatio: perf.sharpe_ratio.toFixed(2),
+            maxDrawdown: (perf.max_drawdown * 100).toFixed(1) + '%',
             isBest: isBest
         });
     });
@@ -269,7 +284,9 @@ function updatePerformanceTable() {
             { title: '平均收益', data: 'avgReturn' },
             { title: '最大收益', data: 'maxReturn' },
             { title: '最大亏损', data: 'maxLoss' },
-            { title: '平均持仓天数', data: 'avgHoldDays' }
+            { title: '平均持仓天数', data: 'avgHoldDays' },
+            { title: '夏普比率', data: 'sharpeRatio' },
+            { title: '最大回撤', data: 'maxDrawdown' },
         ],
         order: [[2, 'desc']], // 默认按成功率降序排列
         language: {
@@ -550,6 +567,9 @@ function formatStrategyDetails(strategy) {
                         <li><strong>止损失败率:</strong> ${(strategy.performance.stop_loss_fail_rate * 100).toFixed(1)}%</li>
                         <li><strong>平均收益:</strong> ${(strategy.performance.avg_return * 100).toFixed(1)}%</li>
                         <li><strong>平均持仓:</strong> ${strategy.performance.avg_hold_days.toFixed(1)}天</li>
+                        <li><strong>夏普比率:</strong> ${strategy.performance.sharpe_ratio.toFixed(2)}</li>
+                        <li><strong>最大回撤:</strong> ${(strategy.performance.max_drawdown * 100).toFixed(1)}%</li>
+                        <li><strong>盈亏比:</strong> ${strategy.performance.profit_factor?.toFixed(2) || 'N/A'}</li>
                     </ul>
                 </div>
             </div>
@@ -565,7 +585,6 @@ function formatStrategyDetails(strategy) {
                     <thead class="table-light">
                         <tr>
                             <th>代码</th>
-                            <th>名称</th>
                             ${isLimitPrice ? '<th>前收盘</th>' : ''}
                             <th>买入价</th>
                             <th>目标价</th>
@@ -580,7 +599,6 @@ function formatStrategyDetails(strategy) {
             detailsHtml += `
                 <tr>
                     <td>${stock.symbol}</td>
-                    <td>${stock.name}</td>
                     ${isLimitPrice ? `<td>${stock.prev_close?.toFixed(2) || '-'}</td>` : ''}
                     <td>${stock.buy_price.toFixed(2)}</td>
                     <td>${stock.target_price.toFixed(2)}</td>

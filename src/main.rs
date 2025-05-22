@@ -24,7 +24,6 @@ use env_logger;
 #[derive(Serialize, Deserialize)]
 struct StockRecommendation {
     symbol: String,
-    name: String,
     buy_price: f32,
     target_price: f32,
     stop_loss_price: f32,
@@ -75,10 +74,10 @@ fn main() -> Result<()> {
             top_n: 10,
             lookback_days: 30,
             min_consecutive_decline_days: 3,
-            min_volume_decline_ratio: 0.1,
+            min_volume_decline_ratio: 0.05,
             price_period: 20,
             check_support_level: true,
-            max_support_ratio: 0.06
+            max_support_ratio: 0.18
         }),
         Box::new(BreakthroughPullbackSelector {
             top_n: 10,
@@ -265,7 +264,7 @@ fn generate_recommendations(
     let candidates = selector.run(stock_data, forecast_idx);
     
     // 生成买入信号
-    let signals = signal.generate_signals(candidates, forecast_idx);
+    let signals = signal.generate_signals(candidates, forecast_idx+1);
     
     // 创建推荐列表
     let mut recommendations = Vec::new();
@@ -273,9 +272,6 @@ fn generate_recommendations(
         if buy_price <= 0.0 {
             continue;
         }
-        
-        // 获取股票名称
-        let name = format!("股票{}", symbol); // 简化处理
         
         // 计算目标价和止损价
         let target_price = buy_price * (1.0 + target.target_return());
@@ -291,7 +287,6 @@ fn generate_recommendations(
         // 创建推荐
         let recommendation = StockRecommendation {
             symbol,
-            name,
             buy_price,
             target_price,
             stop_loss_price,
