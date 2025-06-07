@@ -1,8 +1,8 @@
 {
-  "update_date": "2025-06-06",
+  "update_date": "2025-06-07",
   "best_combinations": [
-    17,
-    16
+    19,
+    18
   ],
   "strategies": [
     {
@@ -11,11 +11,11 @@
       "target_name": "收益率目标 2% / 1天",
       "performance": {
         "success_rate": 0.3166667,
-        "stop_loss_rate": 0.1,
+        "stop_loss_rate": 0.108333334,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0045704795,
+        "avg_return": 0.011197648,
         "max_return": 0.22234575,
-        "max_loss": -0.16420661,
+        "max_loss": -0.09790208,
         "avg_hold_days": 1.0,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
@@ -23,38 +23,38 @@
       "recommendations": [
         {
           "symbol": "002951",
-          "buy_price": 10.8,
-          "target_price": 11.016,
-          "stop_loss_price": 10.692,
-          "prev_close": 4.08
-        },
-        {
-          "symbol": "605005",
-          "buy_price": 26.61,
-          "target_price": 27.1422,
-          "stop_loss_price": 26.3439,
-          "prev_close": 14.88
-        },
-        {
-          "symbol": "603056",
-          "buy_price": 21.89,
-          "target_price": 22.327799,
-          "stop_loss_price": 21.671099,
-          "prev_close": 12.72
-        },
-        {
-          "symbol": "002082",
-          "buy_price": 7.58,
-          "target_price": 7.7316,
-          "stop_loss_price": 7.5042,
-          "prev_close": 4.45
+          "buy_price": 12.34,
+          "target_price": 12.5868,
+          "stop_loss_price": 12.2166,
+          "prev_close": 4.28
         },
         {
           "symbol": "603017",
-          "buy_price": 12.09,
-          "target_price": 12.3317995,
-          "stop_loss_price": 11.9691,
-          "prev_close": 8.53
+          "buy_price": 12.04,
+          "target_price": 12.2808,
+          "stop_loss_price": 11.9196005,
+          "prev_close": 8.44
+        },
+        {
+          "symbol": "002082",
+          "buy_price": 7.76,
+          "target_price": 7.9152,
+          "stop_loss_price": 7.6824,
+          "prev_close": 4.4
+        },
+        {
+          "symbol": "605099",
+          "buy_price": 35.6,
+          "target_price": 36.311996,
+          "stop_loss_price": 35.244,
+          "prev_close": 17.56
+        },
+        {
+          "symbol": "605388",
+          "buy_price": 9.91,
+          "target_price": 10.1082,
+          "stop_loss_price": 9.8109,
+          "prev_close": 5.28
         }
       ]
     },
@@ -66,33 +66,25 @@
         "success_rate": 0.027777778,
         "stop_loss_rate": 0.06666667,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.053231332,
+        "avg_return": -0.056128662,
         "max_return": 0.099999994,
         "max_loss": -0.10000002,
         "avg_hold_days": 1.0,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
-      "recommendations": [
-        {
-          "symbol": "603056",
-          "buy_price": 22.15,
-          "target_price": 22.592999,
-          "stop_loss_price": 21.9285,
-          "prev_close": 12.72
-        }
-      ]
+      "recommendations": []
     },
     {
       "strategy_name": "成交量萎缩策略",
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 2% / 1天",
       "performance": {
-        "success_rate": 0.16666667,
-        "stop_loss_rate": 0.11666667,
+        "success_rate": 0.13333334,
+        "stop_loss_rate": 0.125,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0032920076,
-        "max_return": 0.10911513,
+        "avg_return": 0.0025706477,
+        "max_return": 0.0825726,
         "max_loss": -0.0943396,
         "avg_hold_days": 1.0,
         "sharpe_ratio": 0.0,
@@ -100,39 +92,39 @@
       },
       "recommendations": [
         {
+          "symbol": "605488",
+          "buy_price": 35.5,
+          "target_price": 36.21,
+          "stop_loss_price": 35.145,
+          "prev_close": 12.05
+        },
+        {
           "symbol": "601022",
-          "buy_price": 9.7,
-          "target_price": 9.894,
-          "stop_loss_price": 9.603,
-          "prev_close": 8.42
+          "buy_price": 9.55,
+          "target_price": 9.741,
+          "stop_loss_price": 9.4545,
+          "prev_close": 8.37
         },
         {
-          "symbol": "002571",
-          "buy_price": 6.12,
-          "target_price": 6.2423997,
-          "stop_loss_price": 6.0587997,
-          "prev_close": 4.07
+          "symbol": "002982",
+          "buy_price": 16.2,
+          "target_price": 16.524,
+          "stop_loss_price": 16.038,
+          "prev_close": 16.86
         },
         {
-          "symbol": "002590",
-          "buy_price": 14.3,
-          "target_price": 14.5859995,
-          "stop_loss_price": 14.157001,
-          "prev_close": 12.71
+          "symbol": "001367",
+          "buy_price": 22.59,
+          "target_price": 23.0418,
+          "stop_loss_price": 22.3641,
+          "prev_close": 24.05
         },
         {
           "symbol": "600476",
-          "buy_price": 18.0,
-          "target_price": 18.36,
-          "stop_loss_price": 17.82,
-          "prev_close": 12.66
-        },
-        {
-          "symbol": "600192",
-          "buy_price": 7.74,
-          "target_price": 7.8947997,
-          "stop_loss_price": 7.6626,
-          "prev_close": 4.53
+          "buy_price": 17.87,
+          "target_price": 18.2274,
+          "stop_loss_price": 17.691301,
+          "prev_close": 12.6
         }
       ]
     },
@@ -141,10 +133,10 @@
       "signal_name": "地包天信号",
       "target_name": "收益率目标 2% / 1天",
       "performance": {
-        "success_rate": 0.25,
+        "success_rate": 0.16666667,
         "stop_loss_rate": 0.0,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0096211,
+        "avg_return": 0.0073579927,
         "max_return": 0.0675538,
         "max_loss": -0.029045714,
         "avg_hold_days": 1.0,
@@ -153,18 +145,18 @@
       },
       "recommendations": [
         {
-          "symbol": "002717",
-          "buy_price": 2.04,
-          "target_price": 2.0807998,
-          "stop_loss_price": 2.0196,
-          "prev_close": 1.27
+          "symbol": "001367",
+          "buy_price": 22.58,
+          "target_price": 23.031599,
+          "stop_loss_price": 22.3542,
+          "prev_close": 24.05
         },
         {
-          "symbol": "603065",
-          "buy_price": 9.46,
-          "target_price": 9.6491995,
-          "stop_loss_price": 9.3654,
-          "prev_close": 7.19
+          "symbol": "002590",
+          "buy_price": 13.97,
+          "target_price": 14.2494,
+          "stop_loss_price": 13.8303,
+          "prev_close": 12.73
         }
       ]
     },
@@ -173,104 +165,121 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 2% / 1天",
       "performance": {
-        "success_rate": 0.23333335,
-        "stop_loss_rate": 0.108333334,
+        "success_rate": 0.16666667,
+        "stop_loss_rate": 0.15833333,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0028480545,
-        "max_return": 0.07870963,
-        "max_loss": -0.06537754,
+        "avg_return": 0.0010349246,
+        "max_return": 0.102307685,
+        "max_loss": -0.06038642,
         "avg_hold_days": 1.0,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "000722",
-          "buy_price": 13.49,
-          "target_price": 13.7598,
-          "stop_loss_price": 13.3551,
-          "prev_close": 8.71
+          "symbol": "605151",
+          "buy_price": 18.74,
+          "target_price": 19.1148,
+          "stop_loss_price": 18.5526,
+          "prev_close": 14.74
         },
         {
-          "symbol": "002727",
-          "buy_price": 17.43,
-          "target_price": 17.7786,
-          "stop_loss_price": 17.255701,
-          "prev_close": 13.62
+          "symbol": "002549",
+          "buy_price": 10.45,
+          "target_price": 10.658999,
+          "stop_loss_price": 10.3455,
+          "prev_close": 5.25
         },
         {
-          "symbol": "000935",
-          "buy_price": 17.8,
-          "target_price": 18.155998,
-          "stop_loss_price": 17.622,
-          "prev_close": 11.86
+          "symbol": "600787",
+          "buy_price": 5.89,
+          "target_price": 6.0077996,
+          "stop_loss_price": 5.8311,
+          "prev_close": 4.86
         },
         {
-          "symbol": "603707",
-          "buy_price": 11.29,
-          "target_price": 11.5157995,
-          "stop_loss_price": 11.1771,
-          "prev_close": 12.51
+          "symbol": "002965",
+          "buy_price": 42.51,
+          "target_price": 43.3602,
+          "stop_loss_price": 42.0849,
+          "prev_close": 28.31
         },
         {
-          "symbol": "002480",
-          "buy_price": 6.54,
-          "target_price": 6.6707997,
-          "stop_loss_price": 6.4746,
-          "prev_close": 3.16
+          "symbol": "603665",
+          "buy_price": 25.55,
+          "target_price": 26.060999,
+          "stop_loss_price": 25.2945,
+          "prev_close": 15.21
         }
       ]
+    },
+    {
+      "strategy_name": "突破回踩策略",
+      "signal_name": "地包天信号",
+      "target_name": "收益率目标 2% / 1天",
+      "performance": {
+        "success_rate": 0.1388889,
+        "stop_loss_rate": 0.071428575,
+        "stop_loss_fail_rate": 0.0,
+        "avg_return": 0.0022514607,
+        "max_return": 0.09976978,
+        "max_loss": -0.07409087,
+        "avg_hold_days": 1.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+      },
+      "recommendations": []
     },
     {
       "strategy_name": "ATR选股策略",
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.18333335,
+        "success_rate": 0.2,
         "stop_loss_rate": 0.06,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.026982775,
+        "avg_return": -0.022469854,
         "max_return": 0.15555549,
         "max_loss": -0.18966739,
-        "avg_hold_days": 1.41,
+        "avg_hold_days": 1.46,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
           "symbol": "002951",
-          "buy_price": 11.22,
-          "target_price": 11.8932,
-          "stop_loss_price": 11.1078005,
-          "prev_close": 4.08
-        },
-        {
-          "symbol": "605005",
-          "buy_price": 22.8,
-          "target_price": 24.167997,
-          "stop_loss_price": 22.571999,
-          "prev_close": 14.88
-        },
-        {
-          "symbol": "603056",
-          "buy_price": 20.21,
-          "target_price": 21.422598,
-          "stop_loss_price": 20.0079,
-          "prev_close": 12.72
-        },
-        {
-          "symbol": "002082",
-          "buy_price": 7.85,
-          "target_price": 8.320999,
-          "stop_loss_price": 7.7715,
-          "prev_close": 4.45
+          "buy_price": 12.34,
+          "target_price": 13.0803995,
+          "stop_loss_price": 12.2166,
+          "prev_close": 4.28
         },
         {
           "symbol": "603017",
-          "buy_price": 11.28,
-          "target_price": 11.9567995,
-          "stop_loss_price": 11.1672,
-          "prev_close": 8.53
+          "buy_price": 12.41,
+          "target_price": 13.154599,
+          "stop_loss_price": 12.2859,
+          "prev_close": 8.44
+        },
+        {
+          "symbol": "002082",
+          "buy_price": 8.3,
+          "target_price": 8.797999,
+          "stop_loss_price": 8.217,
+          "prev_close": 4.4
+        },
+        {
+          "symbol": "605099",
+          "buy_price": 36.53,
+          "target_price": 38.721798,
+          "stop_loss_price": 36.1647,
+          "prev_close": 17.56
+        },
+        {
+          "symbol": "605388",
+          "buy_price": 10.95,
+          "target_price": 11.606999,
+          "stop_loss_price": 10.8405,
+          "prev_close": 5.28
         }
       ]
     },
@@ -279,51 +288,51 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.25833336,
+        "success_rate": 0.26666668,
         "stop_loss_rate": 0.04,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.020451989,
+        "avg_return": -0.010614085,
         "max_return": 0.27620232,
-        "max_loss": -0.22693726,
-        "avg_hold_days": 1.32,
+        "max_loss": -0.2091304,
+        "avg_hold_days": 1.31,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
           "symbol": "002951",
-          "buy_price": 10.8,
-          "target_price": 11.448,
-          "stop_loss_price": 10.692,
-          "prev_close": 4.08
-        },
-        {
-          "symbol": "605005",
-          "buy_price": 26.61,
-          "target_price": 28.206598,
-          "stop_loss_price": 26.3439,
-          "prev_close": 14.88
-        },
-        {
-          "symbol": "603056",
-          "buy_price": 21.89,
-          "target_price": 23.203398,
-          "stop_loss_price": 21.671099,
-          "prev_close": 12.72
-        },
-        {
-          "symbol": "002082",
-          "buy_price": 7.58,
-          "target_price": 8.0348,
-          "stop_loss_price": 7.5042,
-          "prev_close": 4.45
+          "buy_price": 12.34,
+          "target_price": 13.0803995,
+          "stop_loss_price": 12.2166,
+          "prev_close": 4.28
         },
         {
           "symbol": "603017",
-          "buy_price": 12.09,
-          "target_price": 12.815399,
-          "stop_loss_price": 11.9691,
-          "prev_close": 8.53
+          "buy_price": 12.04,
+          "target_price": 12.7624,
+          "stop_loss_price": 11.9196005,
+          "prev_close": 8.44
+        },
+        {
+          "symbol": "002082",
+          "buy_price": 7.76,
+          "target_price": 8.2256,
+          "stop_loss_price": 7.6824,
+          "prev_close": 4.4
+        },
+        {
+          "symbol": "605099",
+          "buy_price": 35.6,
+          "target_price": 37.735996,
+          "stop_loss_price": 35.244,
+          "prev_close": 17.56
+        },
+        {
+          "symbol": "605388",
+          "buy_price": 9.91,
+          "target_price": 10.5046,
+          "stop_loss_price": 9.8109,
+          "prev_close": 5.28
         }
       ]
     },
@@ -333,75 +342,67 @@
       "target_name": "收益率目标 6% / 3天",
       "performance": {
         "success_rate": 0.027777778,
-        "stop_loss_rate": 0.07692308,
+        "stop_loss_rate": 0.083333336,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.09719796,
+        "avg_return": -0.09706994,
         "max_return": 0.1178572,
         "max_loss": -0.18593155,
-        "avg_hold_days": 1.0769231,
+        "avg_hold_days": 1.0833334,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
-      "recommendations": [
-        {
-          "symbol": "603056",
-          "buy_price": 22.15,
-          "target_price": 23.478998,
-          "stop_loss_price": 21.9285,
-          "prev_close": 12.72
-        }
-      ]
+      "recommendations": []
     },
     {
       "strategy_name": "成交量萎缩策略",
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.10833334,
-        "stop_loss_rate": 0.21,
+        "success_rate": 0.1,
+        "stop_loss_rate": 0.23,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.012335513,
+        "avg_return": -0.010839749,
         "max_return": 0.10080645,
         "max_loss": -0.098039195,
-        "avg_hold_days": 1.95,
+        "avg_hold_days": 1.96,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
+          "symbol": "605488",
+          "buy_price": 34.08,
+          "target_price": 36.1248,
+          "stop_loss_price": 33.7392,
+          "prev_close": 12.05
+        },
+        {
           "symbol": "601022",
-          "buy_price": 9.54,
-          "target_price": 10.112399,
-          "stop_loss_price": 9.4446,
-          "prev_close": 8.42
+          "buy_price": 9.45,
+          "target_price": 10.016999,
+          "stop_loss_price": 9.3555,
+          "prev_close": 8.37
         },
         {
-          "symbol": "002571",
-          "buy_price": 6.03,
-          "target_price": 6.3918,
-          "stop_loss_price": 5.9697003,
-          "prev_close": 4.07
+          "symbol": "002982",
+          "buy_price": 16.06,
+          "target_price": 17.023598,
+          "stop_loss_price": 15.8994,
+          "prev_close": 16.86
         },
         {
-          "symbol": "002590",
-          "buy_price": 13.97,
-          "target_price": 14.8082,
-          "stop_loss_price": 13.8303,
-          "prev_close": 12.71
+          "symbol": "001367",
+          "buy_price": 22.59,
+          "target_price": 23.945398,
+          "stop_loss_price": 22.3641,
+          "prev_close": 24.05
         },
         {
           "symbol": "600476",
-          "buy_price": 17.91,
-          "target_price": 18.984598,
-          "stop_loss_price": 17.7309,
-          "prev_close": 12.66
-        },
-        {
-          "symbol": "600192",
-          "buy_price": 7.78,
-          "target_price": 8.246799,
-          "stop_loss_price": 7.7022004,
-          "prev_close": 4.53
+          "buy_price": 17.58,
+          "target_price": 18.634798,
+          "stop_loss_price": 17.4042,
+          "prev_close": 12.6
         }
       ]
     },
@@ -410,51 +411,51 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.14166667,
-        "stop_loss_rate": 0.23,
+        "success_rate": 0.15,
+        "stop_loss_rate": 0.25,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.0051661194,
-        "max_return": 0.16966069,
+        "avg_return": -0.004112843,
+        "max_return": 0.12307691,
         "max_loss": -0.16981131,
-        "avg_hold_days": 1.97,
+        "avg_hold_days": 2.03,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
+          "symbol": "605488",
+          "buy_price": 35.5,
+          "target_price": 37.629997,
+          "stop_loss_price": 35.145,
+          "prev_close": 12.05
+        },
+        {
           "symbol": "601022",
-          "buy_price": 9.7,
-          "target_price": 10.282,
-          "stop_loss_price": 9.603,
-          "prev_close": 8.42
+          "buy_price": 9.55,
+          "target_price": 10.122999,
+          "stop_loss_price": 9.4545,
+          "prev_close": 8.37
         },
         {
-          "symbol": "002571",
-          "buy_price": 6.12,
-          "target_price": 6.4871993,
-          "stop_loss_price": 6.0587997,
-          "prev_close": 4.07
+          "symbol": "002982",
+          "buy_price": 16.2,
+          "target_price": 17.171999,
+          "stop_loss_price": 16.038,
+          "prev_close": 16.86
         },
         {
-          "symbol": "002590",
-          "buy_price": 14.3,
-          "target_price": 15.157999,
-          "stop_loss_price": 14.157001,
-          "prev_close": 12.71
+          "symbol": "001367",
+          "buy_price": 22.59,
+          "target_price": 23.945398,
+          "stop_loss_price": 22.3641,
+          "prev_close": 24.05
         },
         {
           "symbol": "600476",
-          "buy_price": 18.0,
-          "target_price": 19.079998,
-          "stop_loss_price": 17.82,
-          "prev_close": 12.66
-        },
-        {
-          "symbol": "600192",
-          "buy_price": 7.74,
-          "target_price": 8.204399,
-          "stop_loss_price": 7.6626,
-          "prev_close": 4.53
+          "buy_price": 17.87,
+          "target_price": 18.9422,
+          "stop_loss_price": 17.691301,
+          "prev_close": 12.6
         }
       ]
     },
@@ -463,30 +464,30 @@
       "signal_name": "地包天信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.083333336,
-        "stop_loss_rate": 0.09090909,
+        "success_rate": 0.16666667,
+        "stop_loss_rate": 0.1,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0075687016,
+        "avg_return": 0.007744661,
         "max_return": 0.10542481,
         "max_loss": -0.04979258,
-        "avg_hold_days": 2.2727273,
+        "avg_hold_days": 2.2,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "002717",
-          "buy_price": 2.04,
-          "target_price": 2.1623998,
-          "stop_loss_price": 2.0196,
-          "prev_close": 1.27
+          "symbol": "001367",
+          "buy_price": 22.58,
+          "target_price": 23.9348,
+          "stop_loss_price": 22.3542,
+          "prev_close": 24.05
         },
         {
-          "symbol": "603065",
-          "buy_price": 9.46,
-          "target_price": 10.027599,
-          "stop_loss_price": 9.3654,
-          "prev_close": 7.19
+          "symbol": "002590",
+          "buy_price": 13.97,
+          "target_price": 14.8082,
+          "stop_loss_price": 13.8303,
+          "prev_close": 12.73
         }
       ]
     },
@@ -495,51 +496,51 @@
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 6% / 3天",
       "performance": {
-        "success_rate": 0.083333336,
-        "stop_loss_rate": 0.17,
+        "success_rate": 0.10833334,
+        "stop_loss_rate": 0.19,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.007179861,
-        "max_return": 0.20927595,
-        "max_loss": -0.20152676,
-        "avg_hold_days": 2.06,
+        "avg_return": -0.00076242717,
+        "max_return": 0.15245482,
+        "max_loss": -0.085294105,
+        "avg_hold_days": 2.03,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "000722",
-          "buy_price": 13.03,
-          "target_price": 13.811799,
-          "stop_loss_price": 12.8997,
-          "prev_close": 8.71
+          "symbol": "605151",
+          "buy_price": 18.45,
+          "target_price": 19.557,
+          "stop_loss_price": 18.265501,
+          "prev_close": 14.74
         },
         {
-          "symbol": "002727",
-          "buy_price": 17.03,
-          "target_price": 18.0518,
-          "stop_loss_price": 16.859701,
-          "prev_close": 13.62
+          "symbol": "002549",
+          "buy_price": 10.21,
+          "target_price": 10.822599,
+          "stop_loss_price": 10.1079,
+          "prev_close": 5.25
         },
         {
-          "symbol": "000935",
-          "buy_price": 17.69,
-          "target_price": 18.7514,
-          "stop_loss_price": 17.513102,
-          "prev_close": 11.86
+          "symbol": "600787",
+          "buy_price": 5.89,
+          "target_price": 6.2433996,
+          "stop_loss_price": 5.8311,
+          "prev_close": 4.86
         },
         {
-          "symbol": "603707",
-          "buy_price": 11.07,
-          "target_price": 11.734199,
-          "stop_loss_price": 10.9593,
-          "prev_close": 12.51
+          "symbol": "002965",
+          "buy_price": 41.69,
+          "target_price": 44.191395,
+          "stop_loss_price": 41.273098,
+          "prev_close": 28.31
         },
         {
-          "symbol": "002480",
-          "buy_price": 6.54,
-          "target_price": 6.9323997,
-          "stop_loss_price": 6.4746,
-          "prev_close": 3.16
+          "symbol": "603665",
+          "buy_price": 25.99,
+          "target_price": 27.549398,
+          "stop_loss_price": 25.7301,
+          "prev_close": 15.21
         }
       ]
     },
@@ -549,103 +550,120 @@
       "target_name": "收益率目标 6% / 3天",
       "performance": {
         "success_rate": 0.1,
-        "stop_loss_rate": 0.2,
+        "stop_loss_rate": 0.21,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.00050364254,
-        "max_return": 0.26210144,
-        "max_loss": -0.19085795,
+        "avg_return": 0.0026541157,
+        "max_return": 0.14850947,
+        "max_loss": -0.10000001,
         "avg_hold_days": 2.0,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "000722",
-          "buy_price": 13.49,
-          "target_price": 14.299399,
-          "stop_loss_price": 13.3551,
-          "prev_close": 8.71
+          "symbol": "605151",
+          "buy_price": 18.74,
+          "target_price": 19.864399,
+          "stop_loss_price": 18.5526,
+          "prev_close": 14.74
         },
         {
-          "symbol": "002727",
-          "buy_price": 17.43,
-          "target_price": 18.4758,
-          "stop_loss_price": 17.255701,
-          "prev_close": 13.62
+          "symbol": "002549",
+          "buy_price": 10.45,
+          "target_price": 11.077,
+          "stop_loss_price": 10.3455,
+          "prev_close": 5.25
         },
         {
-          "symbol": "000935",
-          "buy_price": 17.8,
-          "target_price": 18.867998,
-          "stop_loss_price": 17.622,
-          "prev_close": 11.86
+          "symbol": "600787",
+          "buy_price": 5.89,
+          "target_price": 6.2433996,
+          "stop_loss_price": 5.8311,
+          "prev_close": 4.86
         },
         {
-          "symbol": "603707",
-          "buy_price": 11.29,
-          "target_price": 11.9674,
-          "stop_loss_price": 11.1771,
-          "prev_close": 12.51
+          "symbol": "002965",
+          "buy_price": 42.51,
+          "target_price": 45.060596,
+          "stop_loss_price": 42.0849,
+          "prev_close": 28.31
         },
         {
-          "symbol": "002480",
-          "buy_price": 6.54,
-          "target_price": 6.9323997,
-          "stop_loss_price": 6.4746,
-          "prev_close": 3.16
+          "symbol": "603665",
+          "buy_price": 25.55,
+          "target_price": 27.082998,
+          "stop_loss_price": 25.2945,
+          "prev_close": 15.21
         }
       ]
+    },
+    {
+      "strategy_name": "突破回踩策略",
+      "signal_name": "地包天信号",
+      "target_name": "收益率目标 6% / 3天",
+      "performance": {
+        "success_rate": 0.027777778,
+        "stop_loss_rate": 0.25,
+        "stop_loss_fail_rate": 0.0,
+        "avg_return": -0.009437959,
+        "max_return": 0.07703931,
+        "max_loss": -0.07600948,
+        "avg_hold_days": 2.0833333,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+      },
+      "recommendations": []
     },
     {
       "strategy_name": "ATR选股策略",
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.28333333,
-        "stop_loss_rate": 0.0375,
+        "success_rate": 0.29166663,
+        "stop_loss_rate": 0.0625,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.034001306,
-        "max_return": 0.22946435,
+        "avg_return": -0.028605724,
+        "max_return": 0.19778192,
         "max_loss": -0.22859168,
-        "avg_hold_days": 1.125,
+        "avg_hold_days": 1.15,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
           "symbol": "002951",
-          "buy_price": 11.22,
-          "target_price": 11.3322,
-          "stop_loss_price": 11.1078005,
-          "prev_close": 4.08
-        },
-        {
-          "symbol": "605005",
-          "buy_price": 22.8,
-          "target_price": 23.028,
-          "stop_loss_price": 22.571999,
-          "prev_close": 14.88
-        },
-        {
-          "symbol": "603056",
-          "buy_price": 20.21,
-          "target_price": 20.412098,
-          "stop_loss_price": 20.0079,
-          "prev_close": 12.72
-        },
-        {
-          "symbol": "002082",
-          "buy_price": 7.85,
-          "target_price": 7.9284997,
-          "stop_loss_price": 7.7715,
-          "prev_close": 4.45
+          "buy_price": 12.34,
+          "target_price": 12.4634,
+          "stop_loss_price": 12.2166,
+          "prev_close": 4.28
         },
         {
           "symbol": "603017",
-          "buy_price": 11.28,
-          "target_price": 11.392799,
-          "stop_loss_price": 11.1672,
-          "prev_close": 8.53
+          "buy_price": 12.41,
+          "target_price": 12.5341,
+          "stop_loss_price": 12.2859,
+          "prev_close": 8.44
+        },
+        {
+          "symbol": "002082",
+          "buy_price": 8.3,
+          "target_price": 8.383,
+          "stop_loss_price": 8.217,
+          "prev_close": 4.4
+        },
+        {
+          "symbol": "605099",
+          "buy_price": 36.53,
+          "target_price": 36.895298,
+          "stop_loss_price": 36.1647,
+          "prev_close": 17.56
+        },
+        {
+          "symbol": "605388",
+          "buy_price": 10.95,
+          "target_price": 11.0595,
+          "stop_loss_price": 10.8405,
+          "prev_close": 5.28
         }
       ]
     },
@@ -654,12 +672,12 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.25833336,
-        "stop_loss_rate": 0.0875,
+        "success_rate": 0.28333333,
+        "stop_loss_rate": 0.075,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.031320073,
+        "avg_return": -0.021853928,
         "max_return": 0.2767123,
-        "max_loss": -0.3081181,
+        "max_loss": -0.18362837,
         "avg_hold_days": 1.125,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
@@ -667,38 +685,38 @@
       "recommendations": [
         {
           "symbol": "002951",
-          "buy_price": 10.8,
-          "target_price": 10.908,
-          "stop_loss_price": 10.692,
-          "prev_close": 4.08
-        },
-        {
-          "symbol": "605005",
-          "buy_price": 26.61,
-          "target_price": 26.8761,
-          "stop_loss_price": 26.3439,
-          "prev_close": 14.88
-        },
-        {
-          "symbol": "603056",
-          "buy_price": 21.89,
-          "target_price": 22.1089,
-          "stop_loss_price": 21.671099,
-          "prev_close": 12.72
-        },
-        {
-          "symbol": "002082",
-          "buy_price": 7.58,
-          "target_price": 7.6558,
-          "stop_loss_price": 7.5042,
-          "prev_close": 4.45
+          "buy_price": 12.34,
+          "target_price": 12.4634,
+          "stop_loss_price": 12.2166,
+          "prev_close": 4.28
         },
         {
           "symbol": "603017",
-          "buy_price": 12.09,
-          "target_price": 12.2109,
-          "stop_loss_price": 11.9691,
-          "prev_close": 8.53
+          "buy_price": 12.04,
+          "target_price": 12.160399,
+          "stop_loss_price": 11.9196005,
+          "prev_close": 8.44
+        },
+        {
+          "symbol": "002082",
+          "buy_price": 7.76,
+          "target_price": 7.8376,
+          "stop_loss_price": 7.6824,
+          "prev_close": 4.4
+        },
+        {
+          "symbol": "605099",
+          "buy_price": 35.6,
+          "target_price": 35.955997,
+          "stop_loss_price": 35.244,
+          "prev_close": 17.56
+        },
+        {
+          "symbol": "605388",
+          "buy_price": 9.91,
+          "target_price": 10.0091,
+          "stop_loss_price": 9.8109,
+          "prev_close": 5.28
         }
       ]
     },
@@ -710,73 +728,65 @@
         "success_rate": 0.11111111,
         "stop_loss_rate": 0.0,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.072021455,
+        "avg_return": -0.069709726,
         "max_return": 0.24821426,
         "max_loss": -0.2129277,
         "avg_hold_days": 1.0,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
-      "recommendations": [
-        {
-          "symbol": "603056",
-          "buy_price": 22.15,
-          "target_price": 22.3715,
-          "stop_loss_price": 21.9285,
-          "prev_close": 12.72
-        }
-      ]
+      "recommendations": []
     },
     {
       "strategy_name": "成交量萎缩策略",
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.53333336,
+        "success_rate": 0.49166667,
         "stop_loss_rate": 0.2,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.0041016852,
+        "avg_return": 0.0029230341,
         "max_return": 0.17067309,
         "max_loss": -0.17647058,
-        "avg_hold_days": 1.5125,
+        "avg_hold_days": 1.475,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
+          "symbol": "605488",
+          "buy_price": 34.08,
+          "target_price": 34.420803,
+          "stop_loss_price": 33.7392,
+          "prev_close": 12.05
+        },
+        {
           "symbol": "601022",
-          "buy_price": 9.54,
-          "target_price": 9.6354,
-          "stop_loss_price": 9.4446,
-          "prev_close": 8.42
+          "buy_price": 9.45,
+          "target_price": 9.544499,
+          "stop_loss_price": 9.3555,
+          "prev_close": 8.37
         },
         {
-          "symbol": "002571",
-          "buy_price": 6.03,
-          "target_price": 6.0903,
-          "stop_loss_price": 5.9697003,
-          "prev_close": 4.07
+          "symbol": "002982",
+          "buy_price": 16.06,
+          "target_price": 16.2206,
+          "stop_loss_price": 15.8994,
+          "prev_close": 16.86
         },
         {
-          "symbol": "002590",
-          "buy_price": 13.97,
-          "target_price": 14.1097,
-          "stop_loss_price": 13.8303,
-          "prev_close": 12.71
+          "symbol": "001367",
+          "buy_price": 22.59,
+          "target_price": 22.8159,
+          "stop_loss_price": 22.3641,
+          "prev_close": 24.05
         },
         {
           "symbol": "600476",
-          "buy_price": 17.91,
-          "target_price": 18.0891,
-          "stop_loss_price": 17.7309,
-          "prev_close": 12.66
-        },
-        {
-          "symbol": "600192",
-          "buy_price": 7.78,
-          "target_price": 7.8578,
-          "stop_loss_price": 7.7022004,
-          "prev_close": 4.53
+          "buy_price": 17.58,
+          "target_price": 17.7558,
+          "stop_loss_price": 17.4042,
+          "prev_close": 12.6
         }
       ]
     },
@@ -785,10 +795,10 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.5916667,
+        "success_rate": 0.55833334,
         "stop_loss_rate": 0.25,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.00008358546,
+        "avg_return": 0.002413888,
         "max_return": 0.18203884,
         "max_loss": -0.17647058,
         "avg_hold_days": 1.4625,
@@ -797,39 +807,39 @@
       },
       "recommendations": [
         {
+          "symbol": "605488",
+          "buy_price": 35.5,
+          "target_price": 35.855,
+          "stop_loss_price": 35.145,
+          "prev_close": 12.05
+        },
+        {
           "symbol": "601022",
-          "buy_price": 9.7,
-          "target_price": 9.797,
-          "stop_loss_price": 9.603,
-          "prev_close": 8.42
+          "buy_price": 9.55,
+          "target_price": 9.6455,
+          "stop_loss_price": 9.4545,
+          "prev_close": 8.37
         },
         {
-          "symbol": "002571",
-          "buy_price": 6.12,
-          "target_price": 6.1812,
-          "stop_loss_price": 6.0587997,
-          "prev_close": 4.07
+          "symbol": "002982",
+          "buy_price": 16.2,
+          "target_price": 16.362001,
+          "stop_loss_price": 16.038,
+          "prev_close": 16.86
         },
         {
-          "symbol": "002590",
-          "buy_price": 14.3,
-          "target_price": 14.443,
-          "stop_loss_price": 14.157001,
-          "prev_close": 12.71
+          "symbol": "001367",
+          "buy_price": 22.59,
+          "target_price": 22.8159,
+          "stop_loss_price": 22.3641,
+          "prev_close": 24.05
         },
         {
           "symbol": "600476",
-          "buy_price": 18.0,
-          "target_price": 18.18,
-          "stop_loss_price": 17.82,
-          "prev_close": 12.66
-        },
-        {
-          "symbol": "600192",
-          "buy_price": 7.74,
-          "target_price": 7.8173995,
-          "stop_loss_price": 7.6626,
-          "prev_close": 4.53
+          "buy_price": 17.87,
+          "target_price": 18.0487,
+          "stop_loss_price": 17.691301,
+          "prev_close": 12.6
         }
       ]
     },
@@ -838,10 +848,10 @@
       "signal_name": "地包天信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.41666666,
-        "stop_loss_rate": 0.22222222,
+        "success_rate": 0.45833334,
+        "stop_loss_rate": 0.11111111,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.00011295908,
+        "avg_return": 0.0062003946,
         "max_return": 0.044247773,
         "max_loss": -0.045643207,
         "avg_hold_days": 2.0,
@@ -850,18 +860,18 @@
       },
       "recommendations": [
         {
-          "symbol": "002717",
-          "buy_price": 2.04,
-          "target_price": 2.0604,
-          "stop_loss_price": 2.0196,
-          "prev_close": 1.27
+          "symbol": "001367",
+          "buy_price": 22.58,
+          "target_price": 22.8058,
+          "stop_loss_price": 22.3542,
+          "prev_close": 24.05
         },
         {
-          "symbol": "603065",
-          "buy_price": 9.46,
-          "target_price": 9.5546,
-          "stop_loss_price": 9.3654,
-          "prev_close": 7.19
+          "symbol": "002590",
+          "buy_price": 13.97,
+          "target_price": 14.1097,
+          "stop_loss_price": 13.8303,
+          "prev_close": 12.73
         }
       ]
     },
@@ -870,51 +880,51 @@
       "signal_name": "收盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.375,
-        "stop_loss_rate": 0.1375,
+        "success_rate": 0.45000002,
+        "stop_loss_rate": 0.1625,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.0064602382,
-        "max_return": 0.19647694,
-        "max_loss": -0.3138099,
-        "avg_hold_days": 1.575,
+        "avg_return": 0.0061057927,
+        "max_return": 0.12839878,
+        "max_loss": -0.10349291,
+        "avg_hold_days": 1.375,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "000722",
-          "buy_price": 13.03,
-          "target_price": 13.160299,
-          "stop_loss_price": 12.8997,
-          "prev_close": 8.71
+          "symbol": "605151",
+          "buy_price": 18.45,
+          "target_price": 18.6345,
+          "stop_loss_price": 18.265501,
+          "prev_close": 14.74
         },
         {
-          "symbol": "002727",
-          "buy_price": 17.03,
-          "target_price": 17.2003,
-          "stop_loss_price": 16.859701,
-          "prev_close": 13.62
+          "symbol": "002549",
+          "buy_price": 10.21,
+          "target_price": 10.3121,
+          "stop_loss_price": 10.1079,
+          "prev_close": 5.25
         },
         {
-          "symbol": "000935",
-          "buy_price": 17.69,
-          "target_price": 17.8669,
-          "stop_loss_price": 17.513102,
-          "prev_close": 11.86
+          "symbol": "600787",
+          "buy_price": 5.89,
+          "target_price": 5.9488997,
+          "stop_loss_price": 5.8311,
+          "prev_close": 4.86
         },
         {
-          "symbol": "603707",
-          "buy_price": 11.07,
-          "target_price": 11.180699,
-          "stop_loss_price": 10.9593,
-          "prev_close": 12.51
+          "symbol": "002965",
+          "buy_price": 41.69,
+          "target_price": 42.1069,
+          "stop_loss_price": 41.273098,
+          "prev_close": 28.31
         },
         {
-          "symbol": "002480",
-          "buy_price": 6.54,
-          "target_price": 6.6054,
-          "stop_loss_price": 6.4746,
-          "prev_close": 3.16
+          "symbol": "603665",
+          "buy_price": 25.99,
+          "target_price": 26.249899,
+          "stop_loss_price": 25.7301,
+          "prev_close": 15.21
         }
       ]
     },
@@ -923,51 +933,51 @@
       "signal_name": "开盘价信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.35,
-        "stop_loss_rate": 0.175,
+        "success_rate": 0.42499998,
+        "stop_loss_rate": 0.1625,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": -0.0033516053,
-        "max_return": 0.20793433,
-        "max_loss": -0.30464137,
-        "avg_hold_days": 1.4125,
+        "avg_return": 0.0057719154,
+        "max_return": 0.1859243,
+        "max_loss": -0.113207504,
+        "avg_hold_days": 1.2,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
       "recommendations": [
         {
-          "symbol": "000722",
-          "buy_price": 13.49,
-          "target_price": 13.6249,
-          "stop_loss_price": 13.3551,
-          "prev_close": 8.71
+          "symbol": "605151",
+          "buy_price": 18.74,
+          "target_price": 18.927399,
+          "stop_loss_price": 18.5526,
+          "prev_close": 14.74
         },
         {
-          "symbol": "002727",
-          "buy_price": 17.43,
-          "target_price": 17.6043,
-          "stop_loss_price": 17.255701,
-          "prev_close": 13.62
+          "symbol": "002549",
+          "buy_price": 10.45,
+          "target_price": 10.5545,
+          "stop_loss_price": 10.3455,
+          "prev_close": 5.25
         },
         {
-          "symbol": "000935",
-          "buy_price": 17.8,
-          "target_price": 17.977999,
-          "stop_loss_price": 17.622,
-          "prev_close": 11.86
+          "symbol": "600787",
+          "buy_price": 5.89,
+          "target_price": 5.9488997,
+          "stop_loss_price": 5.8311,
+          "prev_close": 4.86
         },
         {
-          "symbol": "603707",
-          "buy_price": 11.29,
-          "target_price": 11.4029,
-          "stop_loss_price": 11.1771,
-          "prev_close": 12.51
+          "symbol": "002965",
+          "buy_price": 42.51,
+          "target_price": 42.935097,
+          "stop_loss_price": 42.0849,
+          "prev_close": 28.31
         },
         {
-          "symbol": "002480",
-          "buy_price": 6.54,
-          "target_price": 6.6054,
-          "stop_loss_price": 6.4746,
-          "prev_close": 3.16
+          "symbol": "603665",
+          "buy_price": 25.55,
+          "target_price": 25.805498,
+          "stop_loss_price": 25.2945,
+          "prev_close": 15.21
         }
       ]
     },
@@ -976,32 +986,17 @@
       "signal_name": "地包天信号",
       "target_name": "收益率目标 1% / 5天",
       "performance": {
-        "success_rate": 0.16666667,
-        "stop_loss_rate": 0.0,
+        "success_rate": 0.26250002,
+        "stop_loss_rate": 0.2,
         "stop_loss_fail_rate": 0.0,
-        "avg_return": 0.0009784102,
-        "max_return": 0.08125818,
-        "max_loss": -0.07930136,
-        "avg_hold_days": 1.0,
+        "avg_return": 0.0039269575,
+        "max_return": 0.14803626,
+        "max_loss": -0.10688837,
+        "avg_hold_days": 1.3,
         "sharpe_ratio": 0.0,
         "max_drawdown": 0.0
       },
-      "recommendations": [
-        {
-          "symbol": "603680",
-          "buy_price": 10.38,
-          "target_price": 10.4838,
-          "stop_loss_price": 10.2762,
-          "prev_close": 7.03
-        },
-        {
-          "symbol": "002989",
-          "buy_price": 36.72,
-          "target_price": 37.0872,
-          "stop_loss_price": 36.352802,
-          "prev_close": 16.13
-        }
-      ]
+      "recommendations": []
     }
   ]
 }
