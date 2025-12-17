@@ -16,7 +16,7 @@ impl StockDataProvider {
     /// 创建新的数据提供者
     pub fn new() -> Result<Self> {
         info!("初始化数据提供者...");
-        let provider = DataHubProvider::new()?;
+        let provider = DataHubProvider::new_sync()?;
         info!("数据提供者初始化完成");
         
         Ok(Self {
